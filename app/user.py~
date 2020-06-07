@@ -1,4 +1,0 @@
-class User():
-    authenticated = False
-    username = None
-    password = None
