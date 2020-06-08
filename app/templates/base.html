@@ -1,27 +1,48 @@
-<html>
-    <head>
-        {% if title %}
-        <title>{{ title }}</title>
+{% extends 'bootstrap/base.html' %}
+
+{% block title %}
+{{ title }}
+{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="{{ url_for('index') }}">WebPipeliner</a>
+    </div>
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li><a href="{{ url_for('index') }}">Home</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        {% if user.auth %}
+        <li><a href="{{ url_for('logout') }}">Logout</a></li>
         {% else %}
-        <title>Welcome to CCBR WebPipeliner</title>
+        <li><a href="{{ url_for('login') }}">Login</a></li>
         {% endif %}
-    </head>
-    <body>
-      <div>
-	WebPipeliner:
-        <a href="{{ url_for('index') }}">Home</a>
-        <a href="{{ url_for('login') }}">Login</a>
-        </div>
-        <hr>
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <ul>
-            {% for message in messages %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
-        {% block content %}{% endblock %}
-    </body>
-</html>
+      </ul>
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+  {% for message in messages %}
+  <div class="alert alert-info" role="alert">{{ message }}</div>
+  {% endfor %}
+  {% endif %}
+  {% endwith %}
+  
+  {# application content needs to be provided in the app_content block #}
+  {% block app_content %}{% endblock %}
+</div>
+{% endblock %}

@@ -8,6 +8,7 @@ from flask_bootstrap import Bootstrap
 app = Flask(__name__)
 app.config.from_object(Config)
 bootstrap = Bootstrap(app)
+user = User
 
 from app import routes, errors
 
