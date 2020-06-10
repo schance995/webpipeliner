@@ -1,26 +1,4 @@
-2020-06-10 01:11:54,327 ERROR: Exception on /logout [GET] [in /home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py:1892]
-Traceback (most recent call last):
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1952, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1821, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
-    raise value
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "/home/ubu/webpipeliner/app/routes.py", line 51, in logout
-    stdin,stdout,stderr=ssh.exec_command("ls")
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/paramiko/client.py", line 508, in exec_command
-    chan = self._transport.open_session(timeout=timeout)
-AttributeError: 'NoneType' object has no attribute 'open_session'
-2020-06-10 01:12:32,912 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:25]
-2020-06-10 01:14:47,993 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:25]
-2020-06-10 01:16:32,737 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:25]
-2020-06-10 01:16:42,859 ERROR: Exception on /step1 [GET] [in /home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py:1892]
+2020-06-10 01:27:25,574 ERROR: Exception on /step1 [GET] [in /home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py:1892]
 Traceback (most recent call last):
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
     response = self.full_dispatch_request()
@@ -79,4 +57,77 @@ Traceback (most recent call last):
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/wtforms/fields/core.py", line 486, in iter_choices
     for value, label in choices:
 ValueError: too many values to unpack (expected 2)
-2020-06-10 01:27:06,617 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:25]
+2020-06-10 01:29:57,678 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:25]
+2020-06-10 01:30:17,489 ERROR: Exception on /step1 [GET] [in /home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py:1892]
+Traceback (most recent call last):
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1821, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/ubu/webpipeliner/app/routes.py", line 23, in step1
+    return render_template('step1.html', title='Step 1', user=user, form=form)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/templating.py", line 140, in render_template
+    ctx.app,
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/templating.py", line 120, in _render
+    rv = template.render(context)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/jinja2/environment.py", line 1090, in render
+    self.environment.handle_exception()
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/jinja2/environment.py", line 832, in handle_exception
+    reraise(*rewrite_traceback_stack(source=source))
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/jinja2/_compat.py", line 28, in reraise
+    raise value.with_traceback(tb)
+  File "/home/ubu/webpipeliner/app/templates/step1.html", line 2, in top-level template code
+    {% import 'bootstrap/wtf.html' as wtf %}
+  File "/home/ubu/webpipeliner/app/templates/base.html", line 1, in top-level template code
+    {% extends 'bootstrap/base.html' %}
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask_bootstrap/templates/bootstrap/base.html", line 1, in top-level template code
+    {% block doc -%}
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask_bootstrap/templates/bootstrap/base.html", line 4, in block "doc"
+    {%- block html %}
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask_bootstrap/templates/bootstrap/base.html", line 20, in block "html"
+    {% block body -%}
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask_bootstrap/templates/bootstrap/base.html", line 23, in block "body"
+    {% block content -%}
+  File "/home/ubu/webpipeliner/app/templates/base.html", line 44, in block "content"
+    {% block app_content %}{% endblock %}
+  File "/home/ubu/webpipeliner/app/templates/step1.html", line 7, in block "app_content"
+    {{ wtf.quick_form(form) }}
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/jinja2/runtime.py", line 679, in _invoke
+    rv = self._func(*arguments)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask_bootstrap/templates/bootstrap/wtf.html", line 205, in template
+    {{ form_field(field,
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/jinja2/runtime.py", line 679, in _invoke
+    rv = self._func(*arguments)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask_bootstrap/templates/bootstrap/wtf.html", line 123, in template
+    {{field(class="form-control", **kwargs)|safe}}
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/wtforms/fields/core.py", line 160, in __call__
+    return self.meta.render_field(self, kwargs)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/wtforms/meta.py", line 56, in render_field
+    return field.widget(field, **render_kw)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/wtforms/widgets/core.py", line 300, in __call__
+    for val, label, selected in field.iter_choices():
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/wtforms/fields/core.py", line 486, in iter_choices
+    for value, label in choices:
+ValueError: too many values to unpack (expected 2)
+2020-06-10 01:33:38,664 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:25]
+2020-06-10 01:35:18,442 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:25]
+2020-06-10 01:35:57,590 ERROR: Exception on /step1 [POST] [in /home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py:1892]
+Traceback (most recent call last):
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1953, in full_dispatch_request
+    return self.finalize_request(rv)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1968, in finalize_request
+    response = self.make_response(rv)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 2098, in make_response
+    "The view function did not return a valid response. The"
+TypeError: The view function did not return a valid response. The function either returned None or ended without a return statement.
+2020-06-10 01:38:11,903 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:25]

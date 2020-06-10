@@ -1,0 +1,131 @@
+Biowulf requests must be made through Kerberos
+
+=====================
+HPC API Documentation
+=====================
+-----------------------------
+Version 0.0.1 - October, 2019
+-----------------------------
+Prerequisites
+=============
+To submit an API job, you must have a valid Biowulf account and a valid 
+Kerberos ticket. To check your Kerberos ticket status on a Unix or Linux
+based machine, you can run the "klist" command, e.g.::
+  $ klist
+  Ticket cache: FILE:/tmp/krb5cc_1000_XBAYYI
+  Default principal: btmiller@NIH.GOV
+  Valid starting       Expires              Service principal
+  10/21/2019 22:38:02  10/22/2019 08:38:02  krbtgt/NIH.GOV@NIH.GOV
+  	renew until 10/28/2019 22:38:02
+  10/21/2019 22:46:41  10/22/2019 08:38:02  HTTP/hpcjobapi.cit.nih.gov@NIH.GOV
+	renew until 10/28/2019 22:38:02  
+Note that the HTTP service ticket for hpcjobapi will not appear until you 
+actually submit an API call.  All you need is the ticket granting ticket (TGT).
+Job submission API methods
+==========================
+Submit batch job
+----------------
+* URL: hpcapi/submit_job
+* Method: POST
+Request
+^^^^^^^
+* Content-type: application/json
+* JSON parameters:
+Response
+^^^^^^^^
+* Content-type: text/plain (severe error) or application/json
+* JSON parameters:
+** Status: "call success" or "call failure"
+** Reason: If the call is successful, the job ID is given, otherwise the reason for failure
+   is given.
+* Errors:
+** postdata_parse_error: The JSON in the POST could not be processed
+** postdata_too_big: the POST (including the job script) is bigger than 4 KB.
+** no_partition_given: the mandatory "partition" parameter was not set
+** bad_partition: the partition given is not valid for API job submission
+** bad_number_of_tasks: the number of tasks given is not valid
+** conflicting_mem_specifications: both mem-per-cpu and mem-per-node were given
+** backend_query_malloc_failed: there was a memory allocation during back-end processing to submit the job
+** backend_query_job_submission_failed: there was an error submitting the job to SLURM.
+** OTHER ERRORS REMAIN TO BE DOCUMENTED!
+Example call
+^^^^^^^^^^^^
+  $ curl -X POST -H 'Content-Type: application/json' -i --negotiate -u : \
+    https://hpcjobapi.cit.nih.gov/hpcapi/submit_job \
+    -d '{"partition": "norm", "script-body": "#!/bin/bash\necho Hi from the API\nsleep 180\n"}'
+  HTTP/1.1 401 Unauthorized
+  Date: Tue, 22 Oct 2019 18:34:02 GMT
+  Server: Apache/2.4.6 (CentOS) OpenSSL/1.0.2k-fips mod_auth_gssapi/1.5.1 PHP/5.4.16 mod_wsgi/3.4 Python/2.7.5
+  WWW-Authenticate: Negotiate
+  Last-Modified: Thu, 08 Aug 2019 02:10:26 GMT
+  ETag: "38-58f918fa23bf1"
+  Accept-Ranges: bytes
+  Content-Length: 56
+  Content-Type: text/plain; charset=UTF-8
+  HTTP/1.1 200 Success
+  Date: Tue, 22 Oct 2019 18:34:02 GMT
+  Server: Apache/2.4.6 (CentOS) OpenSSL/1.0.2k-fips mod_auth_gssapi/1.5.1 PHP/5.4.16 mod_wsgi/3.4 Python/2.7.5
+  WWW-Authenticate: Negotiate REDACTED
+  Content-Length: 48
+  Content-Type: application/json
+  {"status": "call_success", "reason": "40112288"
+Submit swarm
+------------
+* URL: hpcapi/submit_swarm
+* Method: POST
+* Documentation to be written!
+Job Query API methods
+=====================
+Query Status
+------------
+* URL: hpcapi/query_status
+* Method: GET
+Request
+^^^^^^^
+* Content-type: None
+No parameters should be passed.  The system will return records for all jobs 
+for the authenticated user over the previous 24 hours.
+Response
+^^^^^^^^
+* Content-Type: text/plain (severe error) or application/json
+* JSON fields in response:
+  * status: either "call_success" or "call_failure"
+Example call
+^^^^^^^^^^^^
+$ curl -X GET -i --negotiate -u : https://hpcjobapi.cit.nih.gov/hpcapi/query_status | grep "^{" | jq
+  {
+    "status": "call_success",
+    "40020393": {
+      "end": "2019-10-22T14:43:08",
+      "name": "run_equil_5.sh",
+      "partition": "multinode",
+      "start": "2019-10-21T14:43:08",
+      "state": "RUNNING",
+      "user": "btmiller"
+    },
+    "reason": "query_success",
+    "40091416": {
+      "end": "2019-10-22T14:43:08",
+      "name": "run_prod.sh",
+      "partition": "multinode",
+      "start": "2019-10-22T10:21:31",
+      "state": "RUNNING",
+      "user": "btmiller"
+    },
+    "39991062": {
+      "end": "2019-10-22T08:41:04",
+      "name": "run_prod.sh",
+      "partition": "multinode",
+      "start": "2019-10-21T14:43:08",
+      "state": "COMPLETE",
+      "user": "btmiller"
+    },
+    "40112288": {
+      "end": "2019-10-22T14:43:08",
+      "name": "btmiller-sub.n7_EJB",
+      "partition": "norm",
+      "start": "2019-10-22T14:41:03",
+      "state": "RUNNING",
+      "user": "btmiller"
+    }
+  }
