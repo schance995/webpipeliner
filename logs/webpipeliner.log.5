@@ -1,4 +1,4 @@
-2020-06-10 01:06:39,820 ERROR: Exception on /login [GET] [in /home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py:1892]
+2020-06-08 01:04:04,489 ERROR: Exception on /login [GET] [in /home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py:1892]
 Traceback (most recent call last):
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
     response = self.full_dispatch_request()
@@ -12,7 +12,7 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
     return self.view_functions[rule.endpoint](**req.view_args)
-  File "/home/ubu/webpipeliner/app/routes.py", line 47, in login
+  File "/home/ubu/webpipeliner/app/routes.py", line 45, in login
     return render_template('login.html',  title='Log In', form=form, user=user)
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/templating.py", line 140, in render_template
     ctx.app,
@@ -36,8 +36,8 @@ Traceback (most recent call last):
     {% block body -%}
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask_bootstrap/templates/bootstrap/base.html", line 21, in block "body"
     {% block navbar %}
-  File "/home/ubu/webpipeliner/app/templates/base.html", line 17, in block "navbar"
-    <a class="navbar-brand" href="{{ url_for('index') }}">WebPipeliner</a>
+  File "/home/ubu/webpipeliner/app/templates/base.html", line 26, in block "navbar"
+    <li><a href="{{ url_for('user', username=user.name) }}">Profile</a></li>
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/helpers.py", line 370, in url_for
     return appctx.app.handle_url_build_error(error, endpoint, values)
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 2216, in handle_url_build_error
@@ -48,9 +48,9 @@ Traceback (most recent call last):
     endpoint, values, method=method, force_external=external
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/werkzeug/routing.py", line 2179, in build
     raise BuildError(endpoint, values, method, self)
-werkzeug.routing.BuildError: Could not build url for endpoint 'index'. Did you mean 'login' instead?
-2020-06-10 01:07:32,352 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:25]
-2020-06-10 01:07:54,516 ERROR: Exception on /login [GET] [in /home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py:1892]
+werkzeug.routing.BuildError: Could not build url for endpoint 'user' with values ['username']. Did you mean 'index' instead?
+2020-06-08 01:05:54,874 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:27]
+2020-06-08 01:06:00,906 ERROR: Exception on / [GET] [in /home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py:1892]
 Traceback (most recent call last):
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
     response = self.full_dispatch_request()
@@ -64,7 +64,25 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
     return self.view_functions[rule.endpoint](**req.view_args)
-  File "/home/ubu/webpipeliner/app/routes.py", line 47, in login
+  File "/home/ubu/webpipeliner/app/routes.py", line 13, in index
+    if user.auth: # check for login
+NameError: name 'user' is not defined
+2020-06-08 01:08:22,864 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:25]
+2020-06-08 01:08:25,856 ERROR: Exception on /login [GET] [in /home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py:1892]
+Traceback (most recent call last):
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1821, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/ubu/webpipeliner/app/routes.py", line 45, in login
     return render_template('login.html',  title='Log In', form=form, user=user)
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/templating.py", line 140, in render_template
     ctx.app,
@@ -88,8 +106,8 @@ Traceback (most recent call last):
     {% block body -%}
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask_bootstrap/templates/bootstrap/base.html", line 21, in block "body"
     {% block navbar %}
-  File "/home/ubu/webpipeliner/app/templates/base.html", line 17, in block "navbar"
-    <a class="navbar-brand" href="{{ url_for('index') }}">WebPipeliner</a>
+  File "/home/ubu/webpipeliner/app/templates/base.html", line 26, in block "navbar"
+    <li><a href="{{ url_for('user', username=user.name) }}">Profile</a></li>
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/helpers.py", line 370, in url_for
     return appctx.app.handle_url_build_error(error, endpoint, values)
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 2216, in handle_url_build_error
@@ -100,33 +118,8 @@ Traceback (most recent call last):
     endpoint, values, method=method, force_external=external
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/werkzeug/routing.py", line 2179, in build
     raise BuildError(endpoint, values, method, self)
-werkzeug.routing.BuildError: Could not build url for endpoint 'index'. Did you mean 'login' instead?
-2020-06-10 01:09:04,416 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:25]
-2020-06-10 01:09:14,480 ERROR: Exception on /login [GET] [in /home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py:1892]
-Traceback (most recent call last):
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1952, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1821, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
-    raise value
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "/home/ubu/webpipeliner/app/routes.py", line 28, in login
-    return redirect(url_for('step1.html'))
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/helpers.py", line 370, in url_for
-    return appctx.app.handle_url_build_error(error, endpoint, values)
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 2216, in handle_url_build_error
-    reraise(exc_type, exc_value, tb)
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
-    raise value
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/helpers.py", line 358, in url_for
-    endpoint, values, method=method, force_external=external
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/werkzeug/routing.py", line 2179, in build
-    raise BuildError(endpoint, values, method, self)
-werkzeug.routing.BuildError: Could not build url for endpoint 'step1.html'. Did you mean 'step1' instead?
-2020-06-10 01:11:28,411 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:25]
+werkzeug.routing.BuildError: Could not build url for endpoint 'user' with values ['username']. Did you mean 'index' instead?
+2020-06-08 01:11:04,565 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:25]
+2020-06-08 01:15:35,660 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:25]
+2020-06-08 01:16:27,162 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:25]
+2020-06-08 01:19:44,019 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:25]

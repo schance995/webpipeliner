@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, url_for, request
 from werkzeug.urls import url_parse
 from app import app
-from app.forms import LoginForm
+from app.forms import LoginForm, BasicsForm
 import paramiko
 from app.user import User
 
@@ -11,34 +11,36 @@ ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
 @app.route('/')
-@app.route('/index')
-def index():
-    if user.auth: # check for login
-        return render_template('index.html', title='Home', user=user)
-    else:
+@app.route('/step1', methods=['GET', 'POST'])
+def step1():
+    if not user.auth: # check for login
         return redirect(url_for('login'))
+        
+    form = BasicsForm()
+    if form.validate_on_submit():
+        flash('You clicked the submit button.')
+        return redirect(url_for('step1'))
+    return render_template('step1.html', title='Step 1', user=user, form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if user.auth:
-        print('why is auth true?')
-        return redirect(url_for('index'))
+        return redirect(url_for('step1'))
     form = LoginForm()
     if form.validate_on_submit(): # is everything filled in correctly?
         username = form.username.data
         password = form.password.data
-        try:
-            ssh.connect(ip, username=username, password=password)
-            next_page = request.args.get('next')
-            if not next_page or url_parse(next_page).netloc != '':
-                next_page = url_for('index')
+        try: # to login
+            # will configure ssh later
+            # ssh.connect(ip, username=username, password=password)
             user.name = username
             user.auth = True
-            return redirect(next_page)
-        except paramiko.AuthenticationException:
+            flash('Login successful')
+            return redirect(url_for('step1'))
+        except paramiko.AuthenticationException: # wrong credentials
             flash('Invalid username or password')
             return redirect(url_for('login'))
-        except Exception as e:
+        except Exception as e: # some other error
             print(e)
             flash('Something went wrong when logging in. Please try again.')
             return redirect(url_for('login'))
@@ -46,10 +48,12 @@ def login():
 
 @app.route('/logout')
 def logout():
+    '''
     stdin,stdout,stderr=ssh.exec_command("ls")
     outlines = stdout.readlines()
     resp = ''.join(outlines)
     print(outlines)
-    ssh.close() # logout
+    sh.close() # logout
+    '''
     user.auth = False
     return redirect(url_for('login'))

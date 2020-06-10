@@ -1,0 +1,118 @@
+Global - Project info
+- Project Id = Text Field
+  - default = 'project'
+  - details = '(Examples: CCBR-nnn,Labname or short project name)
+- Email Address = Email Field
+  - details = '(Mandatory field: must use @nih.gov email address)'
+  - should we require the user to retype this?
+- Flow Cell ID
+  - default = 'stats'
+  - details = '(Examples: FlowCellID, Labname, date or short project name)'
+
+Global - Global Settings
+- Pipeline Family = Dropdown field
+  - pfamilys = ['exomeseq', 'rnaseq', 'genomeseq', 'mirseq', 'ChIPseq', 'scrnaseq']
+- Genome = Dropdown field
+  - genomes = ['hg19','mm10','mm9','hg38','hs37d5','hs38d1','GRCh38','hg38_30_KSHV','hg38_HPV16','canFam3','Mmul_8.0.1', 'hg38_30', 'mm10_M21']
+
+class Frame
+- Data Directory = Directory field w/ open dir button
+  - this automatically counts and displays the number of fastq files
+- Working Directory = Directory field w/ open dir button
+  - this is the output dir that the command outputs will be run in
+- Initialize Dir button
+  - this initializes the working dir
+- Dry Run button
+  - this tests that everything has been set up correctly
+- Run button
+  - this runs the pipeline on the data
+
+class ExomeSeq extends Frame
+- Pipelines = Dropdown list
+  - pipelines = ["Initial QC", "Germline", 'Somatic Tumor-Normal', 'Somatic Tumor-Only']
+- Target Capture Kit = file field
+  - default = "/data/CCBR_Pipeliner/db/PipeDB/lib/SureSelect_mm10.bed"
+  - details = "By default, the path to the Agilent SureSelect Mouse All Exon V1 targets file is filled in here"
+- if "Somatic Tumor-Only" is selected:
+  - Pairs = Text entry
+    - Load button = to open file
+    - Save button = to save file
+
+class RNAseq extends Frame
+- Pipeline = dropdown field
+  - pipelines = ["Quality Control Analysis","Differential Expression Analysis","Fusion Detection","Variant Calling" ]
+  - if "Quality Control Analysis" is selected:
+    - Set Groups button for Sample Information w/ load/save buttons
+  - if "Differential Expression Analysis":
+    - Yes/No selection: Report Differentially Expressed Genes [can have this as a checkbox]
+    - Sample Information
+      - Set Groups w/ load/save buttons
+      - Set Contrasts w/ load/save buttons
+  - else no other fields
+
+class GenomeSeq extends Frame
+- Pipeline = dropdown field
+  - pipelines = ['Initial QC', 'Germline', 'Somatic Tumor-Normal', 'Somatic Tumor-Only']
+  - if "Somatic Tumor-Normal" is selected:
+    - Pairs textbox w/ load/save buttons
+
+[Note: ExomeSeq = GenomeSeq + Target Capture Kit field]
+
+class miR-Seq extends Frame
+- Pipeline = dropdown field
+  - pipelines = ["miRSeq_v2","CAPmirseq-plus"]
+  - if "miRSeq_v2" is selected:
+    - Yes/No selection: Identify Novel miRNAs
+  - Sample Information
+    - Set Groups button w/ textbox and load/save buttons
+    - Set Contrasts button w/ textbox and load/save buttons
+
+class ChIPseq extends Frame
+- Pipeline = dropdown field
+  - pipelines = ["InitialChIPseqQC", "ChIPseq" ]
+  - Sample Information
+    - Set Peak Information button
+      - What is this supposed to do?
+    - Set Groups to compare peaks
+      - text box w/ load/save buttons
+
+scRNAseq extends Frame
+- Pipeline = dropdown field
+  - pipelines = ["Initial QC","Differential Expression"]
+  - if "Initial QC" is selected:
+    - QC, Filtering, and Initial Clustering group
+      - Clustering Algorithm = dropdown field
+        - algorithms = ["SLM (Smart Local Moving)", "Louvain (Original)","Louvain (with Multilevel Refinement)"]
+      - Clustering Resolution(s) = text entry
+      - default = 0.4, 0.6, 0.8, 1.0, 1.2
+      - details = "Separate with commas"
+      - Annotation database = dropdown field
+        - if genome = 'mm10':
+	  - dbs = ["ImmGen","Mouse RNASeq"]
+	- if genome = 'GRCh38':
+	  - dbs = ["Human Primary Cell Atlas","Blueprint/ENCODE","Monaco Immune","Database of Immune Cell Expression (DICE)"]
+      - Yes/No selection: CITESeq
+      - Sample information
+        - Set Groups button -> textbox w/ load/save buttons
+	- Set Contrasts button -> textbox w/ load/save buttons
+  - if "Differential Expression" selected:
+    - Use the pre- or post-batch corrected data = dropdown field
+      - options = ["Merged (Pre-batch correction)","Integrated (Post-batch correction)","Both"]
+    - Clustering Resolution = text field
+      - default = '0.4,0.6,0.8,1.0,1.2'
+      - details = 'Choose a previous resolution or select a new resolution to run'
+    - Statistical test for differential expression = dropdown field
+      - tests = ["MAST","DESeq2","Likelihood Ratio","Logistic regression","Negative Binomial","Wilcoxon","Student's T"]
+    - Minimum fraction of cells expressing DE genes = numeric field
+      - default = 0.1
+    - Minimum fold change to report DE genes = numeric field
+      - default = 0.25
+    - Sample Information
+      - Set Groups button -> textbox w/ load/save buttons
+      - Set Contrasts button -> textbox w/ load/save buttons
+
+Allowed pipelines:
+rnaseq, ChIPseq allows set1=['Select the genome','hg19','mm10','mm9','hg38','hs37d5','hs38d1','hg38_30_KSHV','hg38_HPV16','canFam3','Mmul_8.0.1', 'hg38_30', 'mm10_M21']
+mirseq allows set2=['Select the genome','hg19','mm10','mm9','hg38']
+scrnaseq allows set3=['Select the genome','GRCh38','mm10']
+genomeseq, exomeseq allows set4=['Select the genome','hg19','mm10','hg38']

@@ -1,5 +1,4 @@
-2020-06-08 00:24:19,734 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:23]
-2020-06-08 00:24:37,040 ERROR: Exception on /login [POST] [in /home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py:1892]
+2020-06-10 01:04:25,183 ERROR: Exception on /login [GET] [in /home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py:1892]
 Traceback (most recent call last):
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
     response = self.full_dispatch_request()
@@ -13,79 +12,8 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
     return self.view_functions[rule.endpoint](**req.view_args)
-  File "/home/ubu/webpipeliner/app/routes.py", line 29, in login
-    client.connect(hostname=hostname, username=username, password=password)
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/paramiko/client.py", line 416, in connect
-    self, server_hostkey_name, server_key
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/paramiko/client.py", line 824, in missing_host_key
-    "Server {!r} not found in known_hosts".format(hostname)
-paramiko.ssh_exception.SSHException: Server 'grace.umd.edu' not found in known_hosts
-2020-06-08 00:29:12,979 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:23]
-2020-06-08 00:29:22,763 ERROR: Exception on /login [POST] [in /home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py:1892]
-Traceback (most recent call last):
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/paramiko/transport.py", line 1528, in auth_password
-    return self.auth_interactive(username, handler)
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/paramiko/transport.py", line 1633, in auth_interactive
-    return self.auth_handler.wait_for_response(my_event)
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/paramiko/auth_handler.py", line 250, in wait_for_response
-    raise e
-paramiko.ssh_exception.AuthenticationException: Authentication failed.
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/ubu/webpipeliner/app/routes.py", line 30, in login
-    ssh.connect(ip, username=username, password=password)
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/paramiko/client.py", line 446, in connect
-    passphrase,
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/paramiko/client.py", line 764, in _auth
-    raise saved_exception
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/paramiko/client.py", line 751, in _auth
-    self._transport.auth_password(username, password)
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/paramiko/transport.py", line 1531, in auth_password
-    raise e
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/paramiko/transport.py", line 1509, in auth_password
-    return self.auth_handler.wait_for_response(my_event)
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/paramiko/auth_handler.py", line 250, in wait_for_response
-    raise e
-paramiko.ssh_exception.BadAuthenticationType: Bad authentication type; allowed types: ['publickey', 'gssapi-with-mic', 'keyboard-interactive']
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1952, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1821, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
-    raise value
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "/home/ubu/webpipeliner/app/routes.py", line 38, in login
-    except AuthenticationException:
-NameError: name 'AuthenticationException' is not defined
-2020-06-08 00:30:32,178 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:23]
-2020-06-08 00:48:49,938 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:25]
-2020-06-08 00:48:58,953 ERROR: Exception on /login [GET] [in /home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py:1892]
-Traceback (most recent call last):
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1952, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1821, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
-    raise value
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "/home/ubu/webpipeliner/app/routes.py", line 45, in login
-    return render_template('login.html',  title='Log In', form=form)
+  File "/home/ubu/webpipeliner/app/routes.py", line 47, in login
+    return render_template('login.html',  title='Log In', form=form, user=user)
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/templating.py", line 140, in render_template
     ctx.app,
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/templating.py", line 120, in _render
@@ -96,13 +24,90 @@ Traceback (most recent call last):
     reraise(*rewrite_traceback_stack(source=source))
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/jinja2/_compat.py", line 28, in reraise
     raise value.with_traceback(tb)
-  File "/home/ubu/webpipeliner/app/templates/login.html", line 1, in top-level template code
-    {% extends 'base.html' %}
+  File "/home/ubu/webpipeliner/app/templates/login.html", line 2, in top-level template code
+    {% import 'bootstrap/wtf.html' as wtf %}
+  File "/home/ubu/webpipeliner/app/templates/base.html", line 1, in top-level template code
+    {% extends 'bootstrap/base.html' %}
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask_bootstrap/templates/bootstrap/base.html", line 1, in top-level template code
+    {% block doc -%}
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask_bootstrap/templates/bootstrap/base.html", line 4, in block "doc"
+    {%- block html %}
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask_bootstrap/templates/bootstrap/base.html", line 20, in block "html"
+    {% block body -%}
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask_bootstrap/templates/bootstrap/base.html", line 21, in block "body"
+    {% block navbar %}
+  File "/home/ubu/webpipeliner/app/templates/base.html", line 17, in block "navbar"
+    <a class="navbar-brand" href="{{ url_for('index') }}">WebPipeliner</a>
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/helpers.py", line 370, in url_for
+    return appctx.app.handle_url_build_error(error, endpoint, values)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 2216, in handle_url_build_error
+    reraise(exc_type, exc_value, tb)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/helpers.py", line 358, in url_for
+    endpoint, values, method=method, force_external=external
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/werkzeug/routing.py", line 2179, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.BuildError: Could not build url for endpoint 'index'. Did you mean 'login' instead?
+2020-06-10 01:04:26,297 ERROR: Exception on /favicon.ico [GET] [in /home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py:1892]
+Traceback (most recent call last):
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1926, in dispatch_request
+    self.raise_routing_exception(req)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1908, in raise_routing_exception
+    raise request.routing_exception
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/ctx.py", line 350, in match_request
+    result = self.url_adapter.match(return_rule=True)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/werkzeug/routing.py", line 1945, in match
+    raise NotFound()
+werkzeug.exceptions.NotFound: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 2447, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1952, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1816, in handle_user_exception
+    return self.handle_http_exception(e)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 1744, in handle_http_exception
+    return handler(e)
+  File "/home/ubu/webpipeliner/app/errors.py", line 6, in not_found_error
+    return render_template('404.html'), 404
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/templating.py", line 140, in render_template
+    ctx.app,
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/templating.py", line 120, in _render
+    rv = template.render(context)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/jinja2/environment.py", line 1090, in render
+    self.environment.handle_exception()
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/jinja2/environment.py", line 832, in handle_exception
     reraise(*rewrite_traceback_stack(source=source))
   File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/jinja2/_compat.py", line 28, in reraise
     raise value.with_traceback(tb)
-  File "/home/ubu/webpipeliner/app/templates/base.html", line 5, in template
-    {% endblock %}
-jinja2.exceptions.TemplateSyntaxError: Encountered unknown tag 'endblock'.
-2020-06-08 00:50:02,062 INFO: WebPipeliner startup [in /home/ubu/webpipeliner/app/__init__.py:25]
+  File "/home/ubu/webpipeliner/app/templates/404.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/ubu/webpipeliner/app/templates/base.html", line 1, in top-level template code
+    {% extends 'bootstrap/base.html' %}
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask_bootstrap/templates/bootstrap/base.html", line 1, in top-level template code
+    {% block doc -%}
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask_bootstrap/templates/bootstrap/base.html", line 4, in block "doc"
+    {%- block html %}
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask_bootstrap/templates/bootstrap/base.html", line 20, in block "html"
+    {% block body -%}
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask_bootstrap/templates/bootstrap/base.html", line 21, in block "body"
+    {% block navbar %}
+  File "/home/ubu/webpipeliner/app/templates/base.html", line 17, in block "navbar"
+    <a class="navbar-brand" href="{{ url_for('index') }}">WebPipeliner</a>
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/helpers.py", line 370, in url_for
+    return appctx.app.handle_url_build_error(error, endpoint, values)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/app.py", line 2216, in handle_url_build_error
+    reraise(exc_type, exc_value, tb)
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/flask/helpers.py", line 358, in url_for
+    endpoint, values, method=method, force_external=external
+  File "/home/ubu/webpipeliner/.venv/lib/python3.6/site-packages/werkzeug/routing.py", line 2179, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.BuildError: Could not build url for endpoint 'index'. Did you mean 'login' instead?
