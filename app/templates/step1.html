@@ -4,7 +4,30 @@
 {% block app_content %}
 <h1>Step 1 - Basic Details</h1>
 {% if form %}
-    {{ wtf.quick_form(form) }}
+   : {{ wtf.quick_form(form) }}
+    <!-- so at least nothing broke. But I'm going to have to modify the quick_form to support javascript. -->
+    <script> # the dynamic parts
+        let family_select = document.getElementByID('pipelineFamily');
+        let pipeline_select = document.getElementByID('pipeline');
+        family_select.onchange = function() {
+            family = family_select.value();
+            alert(family); // if the alert changes dynamically then you know that it's reading the dynamic field
+            /*
+            fetch('/city/' + state).then(function(response) {
+                response.json().then(function(data) {
+                    console.table(data); // if the table changes in the console then you know that you're getting the data
+                    let optionHTML = ''; // has options for the dropdown
+                    for (let city of data.cities) { // data came from flask during jsonify
+                        // construct new html for dropdown using option tags
+                        optionHTML += '<option value="' + city.id = '">' + city.name + '</option>';
+                    }
+                    city_select.innerHTML = optionHTML; // overwrites old html (old options) with new html (new options)
+                    });
+            }); // get the values
+            */
+        }
+    </script>
+    
     <br>
 {% endif %}
     

@@ -1,15 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Regexp, Optional
-
-pipelines = ['Initial QC', 'Germline', 'Somatic Tumor-Normal', 'Somatic Tumor-Only',
-                'Quality Control Analysis','Differential Expression Analysis','Fusion Detection','Variant Calling',
-                'miRSeq_v2','CAPmirseq-plus',
-                'InitialChIPseqQC', 'ChIPseq',
-                                       'Initial QC','Differential Expression']
-genomes = ['hg19','mm10','mm9','hg38','hs37d5','hs38d1','hg38_30_KSHV','hg38_HPV16','canFam3','Mmul_8.0.1', 'hg38_30', 'mm10_M21']
-
-families = ['ExomeSeq', 'RNAseq', 'GenomeSeq', 'miR-Seq', 'ChIPseq', 'scRNAseq']
+from app.determinators import getFamilies 
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -37,19 +29,14 @@ class BasicsForm(FlaskForm):
                              validators=[Optional()]
                         )
     # choices are (key, value) pairs
+    # we'll add a 'select a value' later.
     pipelineFamily = SelectField('Pipeline Family',
-                                 choices=[(x.lower(), x) for x in families],
+                                 choices=[(f.lower(), f) for f in getFamilies()],
                                  validators=[DataRequired()]
                                  )
-    # for now I'll just have multiple select fields - later I can try to make them dynamic
-    pipeline = SelectField('Specific Pipeline',
-                           choices=[(x.lower(), x) for x in pipelines],
-                           validators=[DataRequired()]
-    )
+    # dynamic fields based on value of family: choices are empty so we can initialize them later.
+    pipeline = SelectField('Specific Pipeline', choices=[], validators=[DataRequired()])
 
-    genome = SelectField('Genome',
-                         choices=[(x.lower(), x) for x in genomes],
-                         validators=[DataRequired()]
-                         )
+    genome = SelectField('Genome', choices=[], validators=[DataRequired()])
     
     next = SubmitField('Next')
