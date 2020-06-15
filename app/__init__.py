@@ -4,10 +4,12 @@ import logging
 from logging.handlers import RotatingFileHandler
 import os
 from flask_bootstrap import Bootstrap
+# from flask_login import LoginManager
 
 app = Flask(__name__)
 app.config.from_object(Config)
 bootstrap = Bootstrap(app)
+# login = loginManager(app)
 
 from app import routes, errors
 

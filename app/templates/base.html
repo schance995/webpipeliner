@@ -19,7 +19,7 @@
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
         <li><a href="{{ url_for('step1') }}">Step 1</a></li>
-        {% if user.auth %}
+        {% if current_user.auth %}
         <li><a href="{{ url_for('logout') }}">Logout</a></li>
         {% else %}
         <li><a href="{{ url_for('login') }}">Login</a></li>

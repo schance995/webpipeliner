@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, jsonify
 from werkzeug.urls import url_parse
 from app import app
 from app.forms import LoginForm, BasicsForm
@@ -7,9 +7,19 @@ from app.user import User
 from app.determinators import getFamilies, getGenomes, getPipelines
 
 user = User()
+'''
 ip = 'grace.umd.edu' # for testing
 ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+'''
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    return render_template('500.html'), 500
 
 @app.route('/')
 @app.route('/step1', methods=['GET', 'POST'])
@@ -23,7 +33,7 @@ def step1():
     if form.validate_on_submit():
         flash('You clicked the submit button.')
         return redirect(url_for('step1'))
-    return render_template('step1.html', title='Step 1', user=user, form=form)
+    return render_template('step1.html', title='Step 1', current_user=user, form=form)
 
 @app.route('/dynamic/<family>') # takes a pipeline parameter
 def dynamic(family):
@@ -45,6 +55,12 @@ def login():
     if form.validate_on_submit(): # is everything filled in correctly?
         username = form.username.data
         password = form.password.data
+        # disabled ssh login for now.
+        user.name = username
+        user.auth = True
+        flash('Login successful')
+        return redirect(url_for('step1'))
+        '''
         try: # to login
             # will configure ssh later
             # ssh.connect(ip, username=username, password=password)
@@ -59,7 +75,8 @@ def login():
             print(e)
             flash('Something went wrong when logging in. Please try again.')
             return redirect(url_for('login'))
-    return render_template('login.html',  title='Log In', form=form, user=user)
+        '''
+    return render_template('login.html',  title='Log In', form=form, current_user=user)
 
 @app.route('/logout')
 def logout():

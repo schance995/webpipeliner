@@ -2,7 +2,7 @@
 
 # this is a dictionary of dictionaries! The outer dictionary is for the families, and the inner dictionaries are for the allowed pipelines and genomes for those families.
 FAMILIES = {
-    'Select the family': None
+    'Select the family': None,
     'ExomeSeq': {
 	'pipelines': ['Select the pipeline', 'Initial QC', 'Germline', 'Somatic Tumor-Normal', 'Somatic Tumor-Only'],
 	'genomes': ['Select the genome', 'hg19','mm10','hg38']
