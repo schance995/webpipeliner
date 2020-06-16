@@ -4,7 +4,7 @@ from app import app
 from app.forms import LoginForm, BasicsForm
 import paramiko
 from app.user import User
-from app.determinators import getFamilies, getGenomes, getPipelines
+from app.families import getFamilies, getGenomes, getPipelines
 
 user = User()
 '''
@@ -15,11 +15,11 @@ ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
 @app.errorhandler(404)
 def not_found_error(error):
-    return render_template('404.html'), 404
+    return render_template('404.html', current_user=user), 404
 
 @app.errorhandler(500)
 def internal_error(error):
-    return render_template('500.html'), 500
+    return render_template('500.html', current_user=user), 500
 
 @app.route('/')
 @app.route('/step1', methods=['GET', 'POST'])
@@ -28,8 +28,8 @@ def step1():
         return redirect(url_for('login'))
         
     form = BasicsForm()
-    form.pipeline.choices = [(p.lower(), p) for p in getPipelines('ExomeSeq')] # tmp default choices put in the correct dynamic choices later.
-    form.genome.choices = [(g.lower(), g) for g in getGenomes('ExomeSeq')] # tmp default choices for now
+    form.pipeline.choices += [(p, p) for p in getPipelines('ExomeSeq')] # tmp default choices put in the correct dynamic choices later.
+    form.genome.choices += [(g, g) for g in getGenomes('ExomeSeq')] # tmp default choices for now
     if form.validate_on_submit():
         flash('You clicked the submit button.')
         return redirect(url_for('step1'))

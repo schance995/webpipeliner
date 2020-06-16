@@ -3,18 +3,19 @@
 
 {% block app_content %}
 <h1>Step 1 - Basic Details</h1>
+<hr>
 {# must render fields independently because of dynamic forms #} 
 {% if form %}
     <form class="form form-horizontal" method="post" role="form">
     {{ form.hidden_tag() }}
     {{ wtf.form_errors(form, hiddens="only") }}
-    {{ wtf.form_field(form.projectId) }}
+    {{ wtf.form_field(form.projectId, placeholder='project')}}
     {{ wtf.form_field(form.email) }}
-    {{ wtf.form_field(form.flowCellId) }}
+    {{ wtf.form_field(form.flowCellId, placeholder='stats') }}
     {{ wtf.form_field(form.pipelineFamily) }}
     {{ wtf.form_field(form.pipeline) }}
     {{ wtf.form_field(form.genome) }}
-    {{ wtf.form_field(form.next) }}
+    <br><input class="btn btn-primary btn-block" id="next_button" name="next_button" type="submit" value="Next">
     </form>
 {% endif %}
     
