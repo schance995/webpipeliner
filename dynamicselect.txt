@@ -1,0 +1,78 @@
+https://www.youtube.com/watch?v=I2dJuNwlIH0
+class Form(FlaskForm):
+    state = SelectField('state', choices=[(key, value)...]
+    city = SelectField('city', choices =[]) # empty, dynamic field
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    form = Form()
+    form.city.choices = [a list of choices based on a particular choice]
+    # submit the form
+    if request.method == 'POST':
+        city = form.city.data # get the form input
+        return '<h1>'State: {}, City: {}</h1>'.format(form.state.data, city.name}
+    return render_template('html', args)
+
+@app.route('/city/<state>') # takes a parameter 'state'
+def city(state):
+    cities = (cities based on states)
+
+    cityArray = []
+
+    for city in cities:
+        cityObj = {}
+        cityObj['id'] = city.id
+        cityObj['name'] = city.name
+        cityArray.append(cityObj) # add all cities (choices
+    return jsonify({'cities': cityArray'}) # a dictionary that maps cities to cities
+    # this route is called every time the state changes
+    
+in the template:
+<form method="POST">
+    {{ form.csrf_token }}
+    {{ form.state }}
+    {{ form.city }}
+    <input type="submit">
+</form>
+<script> # the dynamic parts
+    let state_select = document.getElementByID('state');
+    let city_select = document.getElementByID('city');
+    state_select.onchange = function() {
+        state = state_select.value();
+        alert(state); # if the alert changes dynamically then you know that it's reading the dynamic field
+        fetch('/city/' + state).then(function(response) {
+            response.json().then(function(data) {
+                console.table(data); # if the table changes in the console then you know that you're getting the data
+                let optionHTML = ''; # has options for the dropdown
+                for (let city of data.cities) { # data came from flask during jsonify
+                    # construct new html for dropdown using option tags
+                    optionHTML += '<option value="' + city.id = '">' + city.name + '</option>';
+                }
+                city_select.innerHTML = optionHTML; # overwrites old html (old options) with new html (new options)
+                });
+        }); # get the values
+    }
+</script>
+
+    <!-- so at least nothing broke. But I'm going to have to modify the quick_form to support javascript. -->
+    <script> # the dynamic parts
+        let family_select = document.getElementByID('pipelineFamily');
+        let pipeline_select = document.getElementByID('pipeline');
+        family_select.onchange = function() {
+            family = family_select.value();
+            alert(family); // if the alert changes dynamically then you know that it's reading the dynamic field
+            /*
+            fetch('/city/' + state).then(function(response) {
+                response.json().then(function(data) {
+                    console.table(data); // if the table changes in the console then you know that you're getting the data
+                    let optionHTML = ''; // has options for the dropdown
+                    for (let city of data.cities) { // data came from flask during jsonify
+                        // construct new html for dropdown using option tags
+                        optionHTML += '<option value="' + city.id = '">' + city.name + '</option>';
+                    }
+                    city_select.innerHTML = optionHTML; // overwrites old html (old options) with new html (new options)
+                    });
+            }); // get the values
+            */
+        }
+    </script>
