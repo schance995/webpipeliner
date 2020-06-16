@@ -38,12 +38,15 @@ def step1():
 @app.route('/dynamic/<family>') # takes a pipeline parameter
 def dynamic(family):
     pipelines = getPipelines(family) # get the family's pipelines
+    return jsonify({"pipelines":pipelines})
+    '''
     pipelineArray = []
     for p in pipelines:
         pipelineObj = {}
         pipelineObj['pipeline'] = p
         pipelineArray.append(pipelineObj)
     return jsonify({'pipelines': pipelineArray})
+    '''
 # will be interpreted as an object in javascript
 # this route is called every time the state changes
 
