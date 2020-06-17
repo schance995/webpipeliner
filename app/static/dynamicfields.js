@@ -6,11 +6,8 @@ family_select.onchange = function() {
     // alert(family);
     fetch('/dynamic/' + family).then(function(response) {
         response.json().then(function(data) {
-            for (let p of data.pipelines) {
-                console.log(p);
-            }
+            console.log(data);
             // console.log(JSON.stringify(data));
-            // console.log(data);
             // if the table changes in the console then you know that you're getting the data
         })
     });

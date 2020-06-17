@@ -4,7 +4,8 @@ from app import app
 from app.forms import LoginForm, BasicsForm
 import paramiko
 from app.user import User
-from app.families import getFamilies, getGenomes, getPipelines
+from app.families import getFamilies, getGenomes, getPipelines, familiesAsDict
+from json import dumps
 
 user = User()
 '''
@@ -33,12 +34,13 @@ def step1():
     if form.validate_on_submit():
         flash('You clicked the submit button.')
         return redirect(url_for('step1'))
-    return render_template('step1.html', title='Step 1', current_user=user, form=form)
+    return render_template('step1.html', title='Step 1', current_user=user, form=form, families=dumps(familiesAsDict()))
 
+'''
 @app.route('/dynamic/<family>') # takes a pipeline parameter
 def dynamic(family):
-    pipelines = getPipelines(family) # get the family's pipelines
-    return jsonify({"pipelines":pipelines})
+    return jsonify(familiesAsDict())
+'''
     '''
     pipelineArray = []
     for p in pipelines:

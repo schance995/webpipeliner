@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
+{% block metas %}
+    {{ super() }}
+    <meta id="data" data="{{ families }}">
+{% endblock %}
+
 {% block app_content %}
 <h1>Step 1 - Basic Details</h1>
 <hr>
@@ -17,12 +22,12 @@
     {{ wtf.form_field(form.genome) }}
     <br><input class="btn btn-primary btn-block" id="next_button" name="next_button" type="submit" value="Next">
     </form>
-{% endif %}
-    
+{% endif %}    
 {% endblock %}
 
 {% block scripts %}
     {{ super() }}
-    <script src="{{url_for('static', filename='dynamicfields.js')}}"></script>
+    {#<script src="{{ url_for('static', filename='dynamicfields.js') }}"></script>#}
+    <script src="{{ url_for('static', filename='my_jquery.js') }}"></script>
 {% endblock %}
 

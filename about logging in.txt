@@ -1,0 +1,17 @@
+Yeah, I am thinking we should rely on kerberos for password management.
+I feel like implementing this:
+"Would it be possible to manage logins by asking kerberos for a ticket based on username and password, and then relaying the success status back to the app?"
+would be a good first pass.
+
+But I am not 100% sure this will pan out:
+"i was thinking that if the user didn’t have a biowulf account then they wouldn’t receive a ticket, and the app would know and inform them that they need to register for an account first."
+
+As I think all the NIH computers or laptops will have kerberos install (and the server this will be deployed to will have kerberos cli install), so a user may be able to create ticket but they may not be able to submit a request to biowulf (because they do not have an account).
+
+So this maybe a two step process you will still need to create a ticket for that user (and provided that their username and pw are valid, it should be fine) and then try to query the job scheduler (to test whether they have an account) using this API method
+ curl -X GET -i --negotiate -u : https://hpcjobapi.cit.nih.gov/hpcapi/query_status
+(edited)
+
+Then you could parse the success status the command above to take different actions (like re-direct them to Biowulf’s sign-up page if they do not have an account or continue with logging into the app)
+
+I am just hesitant on storing passwords in a database (even if they are encrypted) to disk.
