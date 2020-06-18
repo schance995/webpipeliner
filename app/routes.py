@@ -4,8 +4,7 @@ from app import app
 from app.forms import LoginForm, BasicsForm
 import paramiko
 from app.user import User
-from app.families import getFamilies, getGenomes, getPipelines, familiesAsDict
-from json import dumps
+from app.families import getFamilies, getGenomes, getPipelines, FAMILIES_JSON
 
 user = User()
 '''
@@ -29,26 +28,25 @@ def step1():
         return redirect(url_for('login'))
         
     form = BasicsForm()
-    form.pipeline.choices += [(p, p) for p in getPipelines('ExomeSeq')] # tmp default choices put in the correct dynamic choices later.
-    form.genome.choices += [(g, g) for g in getGenomes('ExomeSeq')] # tmp default choices for now
+    # was everything filled in correctly
     if form.validate_on_submit():
         flash('You clicked the submit button.')
         return redirect(url_for('step1'))
-    return render_template('step1.html', title='Step 1', current_user=user, form=form, families=dumps(familiesAsDict()))
+    return render_template('step1.html', title='Step 1', current_user=user, form=form, families=FAMILIES_JSON)
 
 '''
 @app.route('/dynamic/<family>') # takes a pipeline parameter
 def dynamic(family):
     return jsonify(familiesAsDict())
 '''
-    '''
-    pipelineArray = []
-    for p in pipelines:
-        pipelineObj = {}
-        pipelineObj['pipeline'] = p
-        pipelineArray.append(pipelineObj)
-    return jsonify({'pipelines': pipelineArray})
-    '''
+'''
+pipelineArray = []
+for p in pipelines:
+    pipelineObj = {}
+    pipelineObj['pipeline'] = p
+    pipelineArray.append(pipelineObj)
+return jsonify({'pipelines': pipelineArray})
+'''
 # will be interpreted as an object in javascript
 # this route is called every time the state changes
 

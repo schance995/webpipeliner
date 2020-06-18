@@ -1,0 +1,3 @@
+flask session = potentially manage user sessions without username/password database
+flask talisman = wrap app around https headers
+flask seasurf = more robust csrf protections

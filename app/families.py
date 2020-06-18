@@ -1,4 +1,5 @@
 from collections import namedtuple
+from json import dumps
 
 # this is a dictionary of dictionaries! The outer dictionary is for the families, and the inner dictionaries are for the allowed pipelines and genomes for those families.
 
@@ -18,6 +19,12 @@ FAMILIES['ChIPseq'] = Family(['InitialChIPseqQC', 'ChIPseq'],
                              ['hg19','mm10','mm9','hg38','hs37d5','hs38d1','hg38_30_KSHV','hg38_HPV16','canFam3','Mmul_8.0.1', 'hg38_30', 'mm10_M21'])
 FAMILIES['scRNAseq'] = Family(['Initial QC','Differential Expression'],
                               ['GRCh38','mm10'])
+# keep family JSON stored in memory
+d = {}
+for fam in list(FAMILIES.keys()):
+    d[fam] = FAMILIES[fam]._asdict()
+
+FAMILIES_JSON = dumps(d)
 
 def getFamilies():
     return list(FAMILIES.keys())
@@ -33,9 +40,3 @@ def getGenomes(fam):
         raise ValueError("The family '"+fam+"' is not a valid family.")
     else:
         return FAMILIES[fam].genomes
-
-def familiesAsDict():
-    d = {}
-    for fam in getFamilies():
-        d[fam] = FAMILIES[fam]._asdict()
-    return d
