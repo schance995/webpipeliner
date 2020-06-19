@@ -1,7 +1,7 @@
-from flask import render_template, flash, redirect, url_for, request, jsonify
+from flask import render_template, flash, redirect, url_for, request, jsonify, session
 from werkzeug.urls import url_parse
 from app import app
-from app.forms import LoginForm, BasicsForm
+from app.forms import LoginForm, BasicsForm, DetailsForm
 import paramiko
 from app.user import User
 from app.families import getFamilies, getGenomes, getPipelines, FAMILIES_JSON
@@ -22,17 +22,50 @@ def internal_error(error):
     return render_template('500.html', current_user=user), 500
 
 @app.route('/')
-@app.route('/step1', methods=['GET', 'POST'])
-def step1():
+@app.route('/basics', methods=['GET', 'POST'])
+def basics():
     if not user.auth: # check for login
         return redirect(url_for('login'))
-        
-    form = BasicsForm()
-    # was everything filled in correctly
+    form = None
+    # if the form was already completed then refills in some details. The user will have to re-enter the pipeline/genome (TODO - fix this)
+    if 'basics' in session:
+        form = BasicsForm(data=session['basics'])
+    else:
+        form = BasicsForm()
+    # form = BasicsForm()
+    # was everything filled in correctly?
     if form.validate_on_submit():
-        flash('You clicked the submit button.')
-        return redirect(url_for('step1'))
-    return render_template('step1.html', title='Step 1', current_user=user, form=form, families=FAMILIES_JSON)
+        tmp_data = form.data
+        # remove unneeded keys
+        del tmp_data['csrf_token']
+        del tmp_data['next_button']
+        # store form data
+        session['basics'] = tmp_data
+        
+        return redirect(url_for('details'))
+    return render_template('basics.html', title='Basics', current_user=user, form=form, families=FAMILIES_JSON)
+
+# this page has the particular details based on the pipeline, as well as the data/working directory selection
+@app.route('/details', methods=['GET', 'POST'])
+def details():
+    if not user.auth: # check for login
+        return redirect(url_for('login'))
+
+    form = DetailsForm()
+    if form.validate_on_submit():
+        return redirect(url_for('submit'))
+    return render_template('details.html', title='Details', current_user=user, form=form)
+    
+# the user can review their inputs before submitting the job
+@app.route('/submit', methods=['GET', 'POST'])
+def submit():
+    if not user.auth: # check for login
+        return redirect(url_for('login'))
+    if 'basics' in session:
+        flash(session['basics'])
+    else:
+        flash("You need to fill out the Basics form!")
+    return render_template('submit.html', title='Submit', current_user=user)
 
 '''
 @app.route('/dynamic/<family>') # takes a pipeline parameter
@@ -53,7 +86,7 @@ return jsonify({'pipelines': pipelineArray})
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if user.auth:
-        return redirect(url_for('step1'))
+        return redirect(url_for('basics'))
     form = LoginForm()
     if form.validate_on_submit(): # is everything filled in correctly?
         username = form.username.data
@@ -62,7 +95,7 @@ def login():
         user.name = username
         user.auth = True
         flash('Login successful')
-        return redirect(url_for('step1'))
+        return redirect(url_for('basics'))
         '''
         try: # to login
             # will configure ssh later
@@ -70,7 +103,7 @@ def login():
             user.name = username
             user.auth = True
             flash('Login successful')
-            return redirect(url_for('step1'))
+            return redirect(url_for('basics'))
         except paramiko.AuthenticationException: # wrong credentials
             flash('Invalid username or password')
             return redirect(url_for('login'))
@@ -91,4 +124,10 @@ def logout():
     sh.close() # logout
     '''
     user.auth = False
+    if 'basics' in session:
+        del session['basics'] # delete the form inputs
     return redirect(url_for('login'))
+
+@app.route('/about')
+def about():
+    return render_template('about.html', current_user=user)

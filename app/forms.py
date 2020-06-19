@@ -35,15 +35,23 @@ class BasicsForm(FlaskForm):
                                  choices=family_choices,
                                  default='Select a family',
                                  validators=[DataRequired(), NoneOf(['Select a family'], message='Must select a family')])
+                                 
     # dynamic fields based on value of family: choices are empty so we can initialize them later.
+    # validate_choice is False because other inputs will by dynamically added via javascript. But the NoneOf validator will still run,
+    # ensuring that the default option is not selectable
     pipeline = SelectField('Specific Pipeline',
                             choices=[('Select a pipeline', 'Select a pipeline')],
                             default='Select a pipeline',
-                            validators=[DataRequired(), NoneOf(['Select a pipeline'], message='Must select a pipeline')])
+                            validate_choice=False,
+                            validators=[NoneOf(['Select a pipeline'], message='Must select a pipeline')])
                             
     genome = SelectField('Genome',
+                            validate_choice=False,
                             choices=[('Select a genome', 'Select a genome')],
                             default='Select a genome',
-                            validators=[DataRequired(), NoneOf(['Select a genome'], message='Must select a genome')])
+                            validators=[NoneOf(['Select a genome'], message='Must select a genome')])
     
+    next_button = SubmitField('Next')
+
+class DetailsForm(FlaskForm):
     next_button = SubmitField('Next')

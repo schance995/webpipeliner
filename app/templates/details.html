@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+<h1>Pipeline Details</h1>
+<hr>
+{# must render fields independently because of dynamic forms #} 
+{% if form %}
+    <form class="form form-horizontal" method="post" role="form">
+    {{ form.hidden_tag() }}
+    <label class="control-label">Next</label>
+    <br><input class="btn btn-primary btn-block" id="next_button" name="next_button" type="submit" value="Next">
+    <br>
+    </form>
+{% endif %}    
+{% endblock %}
+

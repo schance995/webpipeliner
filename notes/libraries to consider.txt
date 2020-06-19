@@ -1,3 +1,4 @@
-flask session = potentially manage user sessions without username/password database
+flask session = potentially manage user sessions without username/password database (will not use this)
 flask talisman = wrap app around https headers
 flask seasurf = more robust csrf protections
+Flask-Kerberos (based on python-kerberos) (will need to use this one)
