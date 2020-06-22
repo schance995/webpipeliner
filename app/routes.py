@@ -30,6 +30,10 @@ def basics():
     # if the form was already completed then refills in some details. The user will have to re-enter the pipeline/genome (TODO - fix this)
     if 'basics' in session:
         form = BasicsForm(data=session['basics'])
+        saved_pipeline = session['basics']['pipeline']
+        form.pipeline.choices.append((saved_pipeline, saved_pipeline))
+        saved_genome = session['basics']['genome']
+        form.genome.choices.append((saved_genome, saved_genome))
     else:
         form = BasicsForm()
     # form = BasicsForm()
@@ -46,10 +50,14 @@ def basics():
     return render_template('basics.html', title='Basics', current_user=user, form=form, families=FAMILIES_JSON)
 
 # this page has the particular details based on the pipeline, as well as the data/working directory selection
+# the user should fill out relevant details in the basics form first. Otherwise they will be redirected to fill out the forms.
 @app.route('/details', methods=['GET', 'POST'])
 def details():
     if not user.auth: # check for login
         return redirect(url_for('login'))
+    if 'basics' not in session: # basics form must be completed first
+        flash("You need to fill out the Basics form before the Details!")
+        return redirect(url_for('basics'))
 
     form = DetailsForm()
     if form.validate_on_submit():

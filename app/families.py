@@ -29,14 +29,25 @@ FAMILIES_JSON = dumps(d)
 def getFamilies():
     return list(FAMILIES.keys())
 
-def getPipelines(fam):
-    if fam not in FAMILIES:
+# use no argument or "all" to get all pipelines or genomes
+def getPipelines(fam="all"):
+    if fam == "all":
+        res = set()
+        for f in list(FAMILIES.keys()):
+            res.update(FAMILIES[f].pipelines) # add all pipelines to the set
+        return res
+    elif fam not in FAMILIES:
         raise ValueError("The family '"+fam+"' is not a valid family.")
     else:
         return FAMILIES[fam].pipelines
 
-def getGenomes(fam):
-    if fam not in FAMILIES:
+def getGenomes(fam="all"):
+    if fam == "all":
+        res = set()
+        for f in list(FAMILIES.keys()):
+            res.update(FAMILIES[f].genomes) # add all genomes to the set
+        return res
+    elif fam not in FAMILIES:
         raise ValueError("The family '"+fam+"' is not a valid family.")
     else:
         return FAMILIES[fam].genomes
