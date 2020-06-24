@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, url_for, request, jsonify, session
 from werkzeug.urls import url_parse
 from app import app
-from app.forms import LoginForm, BasicsForm, DetailsForm
+from app.forms import LoginForm, BasicsForm, create_details_form
 import paramiko
 from app.user import User
 from app.families import getFamilies, getGenomes, getPipelines, FAMILIES_JSON
@@ -39,7 +39,7 @@ def basics():
     # form = BasicsForm()
     # was everything filled in correctly?
     if form.validate_on_submit():
-        tmp_data = form.data
+        tmp_data = dict(form.data) # copy data - not sure what happens to the csrf token inside
         # remove unneeded keys
         del tmp_data['csrf_token']
         del tmp_data['next_button']
@@ -58,10 +58,20 @@ def details():
     if 'basics' not in session: # basics form must be completed first
         flash("You need to fill out the Basics form before the Details!")
         return redirect(url_for('basics'))
-
-    form = DetailsForm()
+    # stored results from basics form
+    family = session['basics']['pipelineFamily']
+    pipeline = session['basics']['pipeline']
+    genome = session['basics']['genome']
+    # dynamic form
+    form = create_details_form(family, pipeline, genome)
     if form.validate_on_submit():
+        tmp_data = dict(form.data)
+        del tmp_data['csrf_token']
+        del tmp_data['next_button']
+        session['details'] = tmp_data
         return redirect(url_for('submit'))
+    
+    flash("Family = " + family + " and Pipeline = " + pipeline + " and Genome = " + genome)
     return render_template('details.html', title='Details', current_user=user, form=form)
     
 # the user can review their inputs before submitting the job
@@ -69,10 +79,18 @@ def details():
 def submit():
     if not user.auth: # check for login
         return redirect(url_for('login'))
+    # user must have completed the basics and details forms before submitting
     if 'basics' in session:
         flash(session['basics'])
     else:
-        flash("You need to fill out the Basics form!")
+        flash('You need to fill out the Basics form before submitting!')
+        return redirect(url_for('basics'))
+
+    if 'details' in session:
+        flash(session['details'])
+    else:
+        flash('You need to fill out the Details form before submitting!')
+        return redirect(url_for('details'))
     return render_template('submit.html', title='Submit', current_user=user)
 
 '''

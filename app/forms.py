@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
-from wtforms.validators import DataRequired, Regexp, Optional, NoneOf, Length
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField
+from wtforms.validators import DataRequired, Regexp, Optional, NoneOf, Length, AnyOf
 from app.families import getFamilies, getPipelines, getGenomes 
 
 class LoginForm(FlaskForm):
@@ -10,9 +10,9 @@ class LoginForm(FlaskForm):
 
 class BasicsForm(FlaskForm):
     projectId = StringField('Project ID',
-#                            default='project',
                             description='Examples: CCBR-nnn,Labname or short project name',
-                            validators=[Optional(), Length(max=500)]
+                            validators=[Optional(), Length(max=500)],
+                            render_kw={"placeholder": "project"} # suggested value
                             )
     
     # must use regexp to verify @nih.gov specifically
@@ -24,9 +24,9 @@ class BasicsForm(FlaskForm):
                        ])
 
     flowCellId = StringField('Flow Cell ID',
-#                             default='stats',
                              description='FlowCellID, Labname, date or short project name',
-                             validators=[Optional(), Length(max=500)]
+                             validators=[Optional(), Length(max=500)],
+                             render_kw={"placeholder": "stats"} # suggested value
                         )
     # choices are (value, label) pairs. But only providing a value makes label = value
     family_choices = [(f, f) for f in getFamilies()]
@@ -37,27 +37,70 @@ class BasicsForm(FlaskForm):
                                  validators=[DataRequired(), NoneOf(['Select a family'], message='Must select a family')])
                                  
     # dynamic fields based on value of family: choices are empty so we can initialize them later.
-    # validate_choice is False because other inputs will by dynamically added via javascript. But the NoneOf validator will still run,
-    # ensuring that the default option is not selectable
+    # validate_choice is False because other inputs will by dynamically added via javascript. But the AnyOf validator will still run,
+    # ensuring that the default option is not selectable. AnyOf is used to prevent malicious form inputs.
     # adding all the choices here is required. Although they will be removed during the dynamic javascript, flask still needs to validate the choices internally
     # this also allows for restoring of the form if the user presses the back button or clicks on the basics tab
-    pipeline_choices = [] # [(p, p) for p in getPipelines()]
-    pipeline_choices.insert(0, ('Select a pipeline', 'Select a pipeline'))
     pipeline = SelectField('Specific Pipeline',
-                            choices=pipeline_choices,
+                            choices=[('Select a pipeline', 'Select a pipeline')],
                             default='Select a pipeline',
                             validate_choice=False,
-                            validators=[NoneOf(['Select a pipeline'], message='Must select a pipeline')])
+                            validators=[AnyOf(getPipelines(),
+                                        message='Must select a pipeline')])
     
-    genome_choices = [] # [(g, g) for g in getGenomes()]
-    genome_choices.insert(0, ('Select a genome', 'Select a genome'))
     genome = SelectField('Genome',
-                            validate_choice=False,
-                            choices=genome_choices,
+                            choices=[('Select a genome', 'Select a genome')],
                             default='Select a genome',
-                            validators=[NoneOf(['Select a genome'], message='Must select a genome')])
+                            validate_choice=False,
+                            validators=[AnyOf(getGenomes(),
+                                        message='Must select a genome')])
     
     next_button = SubmitField('Next')
 
 class DetailsForm(FlaskForm):
+    dataDirSelect = BooleanField('Data Dir to be implemented')
+    workingDirSelect = BooleanField('Working Dir to be implemented')
     next_button = SubmitField('Next')
+
+# leaving it this way as there may be some more stuff to add later
+def addSampleInfo(form, *infos):
+    if 'groups' in infos:
+        setattr(form, 'groups', TextAreaField('Set groups', render_kw={"placeholder": "Some sample format"}))
+    if 'contrasts' in infos:
+        setattr(form, 'contrasts', TextAreaField('Set contrasts', render_kw={"placeholder": "Some other sample format"}))
+    if 'peaks' in infos:
+        setattr(form, 'peaks', TextAreaField('Set peaks', render_kw={"placeholder": "Another sample format"}))
+
+def skip(*optional):
+    pass
+
+# IMPORTANT: for forms that require extra fields, define functions here to add them.
+
+# differential expression analysis
+def addFieldsRNA_DEA(form):
+    setattr(form, 'report', BooleanField('Report differentially expressed genes'))
+    addSampleInfo(form, 'groups', 'contrasts')
+
+# code to initialize the form functions
+
+formFunctions = {}
+for f in getFamilies():
+    formFunctions[f] = {p: skip for p in getPipelines(f)}
+    # dictionary comprehension: each dictionary has a dictionary inside. family -> pipeline
+    # by default a family/pipeline are assigned to do nothing.
+
+# add specific form functions
+formFunctions['RNASeq']['Differential Expression Analysis'] = addFieldsRNA_DEA
+
+# dynamic forms are created here by updating an internal subclass's attributes
+def create_details_form(family, pipeline, genome):
+    class TemplateDetailsForm(DetailsForm):
+        pass
+
+# call the correct function from the dictionary and raise an error if something's not found.
+    try:
+        formFunctions[family][pipeline](TemplateDetailsForm)
+    except KeyError as e:
+        print(e)
+
+    return TemplateDetailsForm()
