@@ -1,0 +1,3 @@
+https://github.com/CCBR/Pipeliner/wiki/Gene-and-isoform-expression-pipeline
+https://github.com/CCBR/Pipeliner/wiki/TLDR-RNA-seq#run-quantification-and-quality-control-pipeline
+https://github.com/CCBR/Pipeliner/wiki/ChIP-seq#step-6-set-peak-information
