@@ -78,7 +78,7 @@ def skip(*optional):
 
 # differential expression analysis
 def addFieldsRNA_DEA(form):
-    setattr(form, 'report', BooleanField('Report differentially expressed genes'))
+    setattr(form, 'reportDiffExpGenes', BooleanField('Report differentially expressed genes'))
     addSampleInfo(form, 'groups', 'contrasts')
 
 # code to initialize the form functions

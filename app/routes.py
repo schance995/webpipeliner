@@ -65,6 +65,14 @@ def details():
     # dynamic form
     form = create_details_form(family, pipeline, genome)
     if form.validate_on_submit():
+        if hasattr(form, 'groups'):
+            test_samples = ['Wildtype_S1, Wildtype_S2, Knockout_S1, Knockout2']
+            groups_data = form.groups.data
+            groups, err = read_groups(groups_data.split('\n'), test_samples)
+            #TODO continue adding code to test inputting groups and contrasts. Should only validate if the text is empty
+            # check form
+        if hasattr(form, 'contrasts'):
+            # check form
         tmp_data = dict(form.data)
         del tmp_data['csrf_token']
         del tmp_data['next_button']
