@@ -1,0 +1,42 @@
+Groups.tab: each line in the first column must be unique
+Contrasts.tab: there can be multiple contrasts or lines. Each contrast/comparison is one line.
+Split by tabs.
+Must define groups in groups.tab for valid contrasts.
+
+IGG_Control_1	IGG	IGG_1
+IGG_Control_2	IGG	IGG_2
+IGG_Control_3	IGG	IGG_3
+Input_Control_1	INPUT	INPUT_1
+Input_Control_2	INPUT	INPUT_2
+Input_Control_3	INPUT	INPUT_3
+Knockout_1	KO	KO_1
+Knockout_2	KO	KO_2
+Knockout_3	KO	KO_3
+
+https://github.com/CCBR/Pipeliner/wiki/Gene-and-isoform-expression-pipeline#31-getting-started-with-the-quantification-and-quality-control-pipeline
+
+mkdir rawdata
+touch Cntrl_S62.R1.fastq.gz Cntrl_S62.R2.fastq.gz Cntrl_S63.R1.fastq.gz Cntrl_S63.R2.fastq.gz Cntrl_S64.R1.fastq.gz Cntrl_S64.R2.fastq.gz Cntrl_S65.R1.fastq.gz Cntrl_S65.R2.fastq.gz TreatmentA_S66.R1.fastq.gz TreatmentA_S66.R2.fastq.gz TreatmentA_S67.R1.fastq.gz TreatmentA_S67.R2.fastq.gz TreatmentA_S68.R1.fastq.gz TreatmentA_S68.R2.fastq.gz TreatmentA_S69.R1.fastq.gz TreatmentA_S69.R2.fastq.gz TreatmentB_S70.R1.fastq.gz TreatmentB_S70.R2.fastq.gz TreatmentB_S71.R1.fastq.gz TreatmentB_S71.R2.fastq.gz TreatmentB_S72.R1.fastq.gz TreatmentB_S72.R2.fastq.gz TreatmentB_S73.R1.fastq.gz TreatmentB_S73.R2.fastq.gz
+
+when reading the files, a popup should display: # files found, (single/paired end) data
+
+just touch these files for now as in the tutorial.
+
+tutorial groups
+Cntrl_S62	Cntrl	Cntrl_1
+Cntrl_S63	Cntrl	Cntrl_2
+Cntrl_S64	Cntrl	Cntrl_3
+Cntrl_S65	Cntrl	Cntrl_4
+TreatmentA_S66	TgA	TgA_1
+TreatmentA_S67	TgA	TgA_2
+TreatmentA_S68	TgA	TgA_3
+TreatmentA_S69	TgA	TgA_4
+TreatmentB_S70	TgB	TgB_1
+TreatmentB_S71	TgB	TgB_2
+TreatmentB_S72	TgB	TgB_3
+TreatmentB_S73	TgB	TgB_4
+
+it is required to have the low abundance gene threshold input values
+Include genes with >= # CPM in >= # samples (this should be rendered properly)
+
+For now I'll hardcode a (static) path to the filesystem and then I can check the filenames.

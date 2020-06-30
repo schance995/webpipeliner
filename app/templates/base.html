@@ -49,7 +49,7 @@
         <li><a href="{{ url_for('basics') }}">Basics</a></li>
         <li><a href="{{ url_for('details') }}">Details</a></li>
         <li><a href="{{ url_for('submit') }}">Submit</a></li>
-        {% if current_user.auth %}
+        {% if current_user and current_user.auth %}
         <li><a href="{{ url_for('logout') }}">Logout</a></li>
         {% else %}
         <li><a href="{{ url_for('login') }}">Login</a></li>

@@ -30,17 +30,5 @@ family_form_select.change(function() {
         });
     };
 });
-/*
-// on pipeline change
-pipeline_form_select.change(function() {
-    // empty genome values except default option
-    $('#genome option:gt(0)').remove();
-    // if not default option then add 
-    if (selected_pipeline !== "Select a genome") {
-        var new_options = data[selected_pipeline].genomes;
-        // dummy variable holds indices, actual is the string value
-    };
-});
-*/
 
 });

@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, FloatField, IntegerField
 from wtforms.validators import DataRequired, Regexp, Optional, NoneOf, Length, AnyOf
 from app.families import getFamilies, getPipelines, getGenomes 
 
@@ -79,6 +79,8 @@ def skip(*optional):
 # differential expression analysis
 def addFieldsRNA_DEA(form):
     setattr(form, 'reportDiffExpGenes', BooleanField('Report differentially expressed genes'))
+    setattr(form, 'minCPM', FloatField(label=None, id='minCPM', validators=[DataRequired()]))
+    setattr(form, 'minSamples', IntegerField(id='minSamples', validators=[DataRequired()]))
     addSampleInfo(form, 'groups', 'contrasts')
 
 # code to initialize the form functions

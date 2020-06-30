@@ -27,7 +27,7 @@ def basics():
     if not user.auth: # check for login
         return redirect(url_for('login'))
     form = None
-    # if the form was already completed then refills in some details. The user will have to re-enter the pipeline/genome (TODO - fix this)
+    # if the form was already completed then refills in some details
     if 'basics' in session:
         form = BasicsForm(data=session['basics'])
         saved_pipeline = session['basics']['pipeline']
@@ -36,10 +36,9 @@ def basics():
         form.genome.choices.append((saved_genome, saved_genome))
     else:
         form = BasicsForm()
-    # form = BasicsForm()
     # was everything filled in correctly?
     if form.validate_on_submit():
-        tmp_data = dict(form.data) # copy data - not sure what happens to the csrf token inside
+        tmp_data = dict(form.data) # copy data as we don't need to store csrf I believe
         # remove unneeded keys
         del tmp_data['csrf_token']
         del tmp_data['next_button']
@@ -64,15 +63,16 @@ def details():
     genome = session['basics']['genome']
     # dynamic form
     form = create_details_form(family, pipeline, genome)
+    if 'details' in session:
+        form.process(data=session['details'])
+        '''
+        for key in session['details'].keys(): # requires JS to fill in the default values?
+            print(key)
+            if hasattr(form, key):
+                print(True)
+                setattr(form, key, session['details'][key]) # attempt to fill in default value
+        '''
     if form.validate_on_submit():
-        if hasattr(form, 'groups'):
-            test_samples = ['Wildtype_S1, Wildtype_S2, Knockout_S1, Knockout2']
-            groups_data = form.groups.data
-            groups, err = read_groups(groups_data.split('\n'), test_samples)
-            #TODO continue adding code to test inputting groups and contrasts. Should only validate if the text is empty
-            # check form
-        if hasattr(form, 'contrasts'):
-            # check form
         tmp_data = dict(form.data)
         del tmp_data['csrf_token']
         del tmp_data['next_button']

@@ -1,0 +1,20 @@
+There are two types of FastQ files: single-end FastQ files and pair-end FastQ files.
+Paired-end data will have two files for each sample:
+{sample}.R1.fastq.gz
+{sample}.R2.fastq.gz.
+Single-end data will only have one file per sample:
+{sample}.R1.fastq.gz.
+If you peek into a rawdata directory and find two files per sample (i.e., you find an R1 and R2 file), you can assume it is paired-end data.
+If you only find an R1 file per sample (i.e., you cannot find its corresponding R2 file), you can assume the user has provided single-end data.
+Nowadays, paired-end sequencing has become the norm, and most project will employ this method; however, it should be noted that some NGS applications will still use single-end sequencing as there is very little gain for using paired-end sequencing (like ChIP-seq for instance or miRNA-seq).
+But yes, the user will have to provide the absolute path to their raw data (this is what we are calling raw data directory). Within the raw data directory, it is assumed that their FastQ files have the following extension:  sampleName.R[1-2].fastq.gz
+Given that assumption, you can identify a few things:
+ 1. whether a given file in the directory is a FastQ file
+ 2. whether the collection of files in that directory are paired-end or single-end
+You can also save the sampleName to a dictionary
+ where each key is the sampleName and its value is a list containing its corresponding raw data files
+rawdata = {“sampleName1”: [“sampleName1.R1.fastq.gz”, “sampleName1.R2.fastq.gz”], “sampleName2": [“sampleName2.R1.fastq.gz”, “sampleName2.R2.fastq.gz”], …}
+Then you can use the rawdata.keys() later to determine if the groups.tab file is valid.
+Remember that the first column of the groups.tab file corresponds to each sampleName
+If a user provides a rawdata directory and there are no FastQ files in it, there should be an error message.
+Let me know if this help or if you have any more questions
