@@ -40,3 +40,6 @@ it is required to have the low abundance gene threshold input values
 Include genes with >= # CPM in >= # samples (this should be rendered properly)
 
 For now I'll hardcode a (static) path to the filesystem and then I can check the filenames.
+
+Cntrl	TgA
+TgA	TgB

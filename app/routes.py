@@ -5,6 +5,7 @@ from app.forms import LoginForm, BasicsForm, create_details_form
 import paramiko
 from app.user import User
 from app.families import getFamilies, getGenomes, getPipelines, FAMILIES_JSON
+from app.checks import read_data_dir, read_groups, read_contrasts
 
 user = User()
 '''
@@ -38,7 +39,7 @@ def basics():
         form = BasicsForm()
     # was everything filled in correctly?
     if form.validate_on_submit():
-        tmp_data = dict(form.data) # copy data as we don't need to store csrf I believe
+        tmp_data = form.data # copy data as we don't need to store csrf I believe
         # remove unneeded keys
         del tmp_data['csrf_token']
         del tmp_data['next_button']
@@ -63,22 +64,41 @@ def details():
     genome = session['basics']['genome']
     # dynamic form
     form = create_details_form(family, pipeline, genome)
-    if 'details' in session:
-        form.process(data=session['details'])
-        '''
-        for key in session['details'].keys(): # requires JS to fill in the default values?
-            print(key)
-            if hasattr(form, key):
-                print(True)
-                setattr(form, key, session['details'][key]) # attempt to fill in default value
-        '''
     if form.validate_on_submit():
-        tmp_data = dict(form.data)
+
+        tmp_data = form.data # a deep copy of the data is created
         del tmp_data['csrf_token']
         del tmp_data['next_button']
+        # should the server or the user store this information?
         session['details'] = tmp_data
+        # validate the form ourselves
+        
+        rawdata, paired_end, err = read_data_dir('rawdata') # directory is relative to app folder
+        if err: # reject
+            flash(err)
+            return redirect(url_for('details'))
+        
+        groupsdata = None
+        if form.groups.data:
+            groupsdata, err = read_groups(form.groups.data.split('\n'), rawdata)
+            if err:
+                flash(err)
+                return redirect(url_for('details'))
+        contrastsdata = None
+        if form.contrasts.data:
+            if groupsdata:
+                contrastsdata, err = read_contrasts(form.contrasts.data.split('\n'), groupsdata['rgroups'])
+                if err:
+                    flash(err)
+                    return redirect(url_for('details'))
+            else:
+                flash('Must define groups in order to define contrasts')
+                return redirect(url_for('details'))
+        
+        # at this point everything is read and ok
         return redirect(url_for('submit'))
-    
+    elif 'details' in session:
+        form.process(data=session['details'])
     flash("Family = " + family + " and Pipeline = " + pipeline + " and Genome = " + genome)
     return render_template('details.html', title='Details', current_user=user, form=form)
     
@@ -157,9 +177,13 @@ def logout():
     print(outlines)
     sh.close() # logout
     '''
-    user.auth = False
-    if 'basics' in session:
-        del session['basics'] # delete the form inputs
+    if user.auth:
+        user.auth = False
+        if 'basics' in session:
+            del session['basics'] # delete the form inputs
+        if 'details' in session:
+            del session['details']
+        flash('Logout successful')
     return redirect(url_for('login'))
 
 @app.route('/about')

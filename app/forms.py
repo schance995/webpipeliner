@@ -65,11 +65,11 @@ class DetailsForm(FlaskForm):
 # leaving it this way as there may be some more stuff to add later
 def addSampleInfo(form, *infos):
     if 'groups' in infos:
-        setattr(form, 'groups', TextAreaField('Set groups', render_kw={"placeholder": "Some sample format"}))
+        setattr(form, 'groups', TextAreaField('Set groups', render_kw={"placeholder": "Some sample format"}, validators=[Optional()]))
     if 'contrasts' in infos:
-        setattr(form, 'contrasts', TextAreaField('Set contrasts', render_kw={"placeholder": "Some other sample format"}))
+        setattr(form, 'contrasts', TextAreaField('Set contrasts', render_kw={"placeholder": "Some other sample format"}, validators=[Optional()]))
     if 'peaks' in infos:
-        setattr(form, 'peaks', TextAreaField('Set peaks', render_kw={"placeholder": "Another sample format"}))
+        setattr(form, 'peaks', TextAreaField('Set peaks', render_kw={"placeholder": "Another sample format"}, validators=[Optional()]))
 
 def skip(*optional):
     pass
