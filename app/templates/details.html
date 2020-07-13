@@ -10,7 +10,8 @@
     {{ form.hidden_tag() }}
     {{ wtf.form_errors(form, hiddens="only") }}
     {# only display form fields #}
-    {% for field in form if not (field.name == 'next_button' or field.name == 'csrf_token') %}
+    {% for field in form if not (field.name in ["next_button", "csrf_token", "minCPM", "minSamples"]) %}
+{#    {% for field in form if not (field.name in ['next_button', 'csrf_token']) %}#}
         {{ wtf.form_field(field) }}
     {% endfor %}
     <label class="control-label">Next</label>
@@ -18,4 +19,9 @@
     <br>
     </form>
 {% endif %}    
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='addingfields.js') }}"></script>
 {% endblock %}

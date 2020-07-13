@@ -79,13 +79,13 @@ def details():
             return redirect(url_for('details'))
         
         groupsdata = None
-        if form.groups.data:
+        if hasattr(form, 'groups') and form.groups.data:
             groupsdata, err = read_groups(form.groups.data.split('\n'), rawdata)
             if err:
                 flash(err)
                 return redirect(url_for('details'))
         contrastsdata = None
-        if form.contrasts.data:
+        if hasattr(form, 'contrasts') and form.contrasts.data:
             if groupsdata:
                 contrastsdata, err = read_contrasts(form.contrasts.data.split('\n'), groupsdata['rgroups'])
                 if err:

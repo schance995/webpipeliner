@@ -44,9 +44,9 @@ def read_data_dir(path):
                         rawdata[m[1]] = [m[2]]
                     if m[2] == 2:
                         paired_end = True
-                else:
-                    err = e
-                    break
+                # else:
+                #     err = e
+                #     break
             pass # to signify end of foor loop
         else:
             err = 'The selected directory is empty.'

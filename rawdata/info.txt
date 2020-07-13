@@ -1,0 +1,1 @@
+This file should be ignored instead of rejecting the whole directory, as they may have important files such as labels.txt
