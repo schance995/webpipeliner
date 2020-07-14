@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, FloatField, IntegerField, FileField
-from wtforms.validators import DataRequired, Regexp, Optional, NoneOf, Length, AnyOf
+from flask_wtf.file import FileField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, FloatField, IntegerField
+from wtforms.validators import DataRequired, Regexp, Optional, NoneOf, Length, AnyOf, ValidationError
 from app.families import getFamilies, getPipelines, getGenomes 
 
 class LoginForm(FlaskForm):
@@ -61,12 +62,18 @@ class DetailsForm(FlaskForm):
     dataDirSelect = BooleanField('Data Dir to be implemented')
     workingDirSelect = BooleanField('Working Dir to be implemented')
     next_button = SubmitField('Next')
-
+'''
+def validate_filename(shouldbe):
+    def _validate_filename(form, field):
+        if field.data and field.data.filename != shouldbe:
+            raise ValidationError('Filename should match ' + filenam)
+    return _validate_filename()
+'''
 # leaving it this way as there may be some more stuff to add later
 def addSampleInfo(form, *infos):
     if 'groups' in infos:
 #        setattr(form, 'groups', TextAreaField('Set groups', render_kw={"placeholder": "Some sample format"}, validators=[Optional()]))
-        setattr(form, 'groups', FileField('Upload groups', validators=[Optional(), Regexp('^[^\\/\\\\]groups\.tab$')]))
+        setattr(form, 'groups', FileField('Upload groups', validators=[Optional()]))
         #TODO get file uploads to work
     if 'contrasts' in infos:
         setattr(form, 'contrasts', TextAreaField('Set contrasts', render_kw={"placeholder": "Some other sample format"}, validators=[Optional()]))

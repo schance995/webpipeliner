@@ -1,5 +1,6 @@
 from re import match
 from os import walk
+from json import dumps
 
 def valid_filename(filename):
     rgx = '^(.+)\.(R[12]\.fastq\.gz)$'
@@ -68,27 +69,31 @@ def read_groups(lines, samples):
     err = ''
     for line in lines:
         line_num += 1
-        parts = line.split('\t')
-        if len(parts) > 3:
-            err = 'There are too many columns on line {}'.format(line_num)
-            break
-        elif len(parts) < 3:
-            err = 'There are not enough columns on line {}'.format(line_num)
-            break
-        # exactly 3 parts
-        sample = parts[0]
-        if sample in d:
-            err = 'The sample name "{}" on line {} appeared twice'.format(sample, line_num)
-            break
-        if sample not in samples:
-            err = 'The sample name {} on line {} doesn\'t appear in your data directory'.format(sample, line_num)
-            break
-        d[sample] = parts[1] # group
-        labels.append(parts[2].replace('\r', '')) # label. Must replace \r because of silly Windows carriage return (\r\n)
+        line = line.replace('\r', '') # must replace \r because of Windows carriage return
+        parts = [p for p in line.split('\t') if len(p)]
+        if len(parts): # ignore empty lines
+            if len(parts) > 3:
+                err = 'There are too many columns on line {}'.format(line_num)
+                break
+            elif len(parts) < 3:
+                err = 'There are not enough columns on line {}'.format(line_num)
+                #1 / 0
+                break
+            # exactly 3 parts
+            sample = parts[0]
+            if sample in d:
+                err = 'The sample name "{}" on line {} appeared twice'.format(sample, line_num)
+                break
+            if sample not in samples:
+                err = 'The sample name {} on line {} doesn\'t appear in your data directory'.format(sample, line_num)
+                break
+            d[sample] = parts[1] # group
+            labels.append(parts[2]) # label. Must replace \r because of silly Windows carriage return (\r\n)
     if err == '':
         groups['rsamps']=list(d.keys())
-        groups['rgroups']=set(d.values()) # may be multiple groups
+        groups['rgroups']=list(set(d.values())) # may be multiple groups
         groups['rlabels']=labels
+        groups = dumps(groups)
         # does this dictionary be named exactly this way?
     return (groups, err)
 

@@ -1,5 +1,6 @@
 from flask import render_template, flash, redirect, url_for, request, jsonify, session
 from werkzeug.urls import url_parse
+from werkzeug.utils import secure_filename
 from app import app
 from app.forms import LoginForm, BasicsForm, create_details_form
 import paramiko
@@ -69,6 +70,8 @@ def details():
         tmp_data = form.data # a deep copy of the data is created
         del tmp_data['csrf_token']
         del tmp_data['next_button']
+        if 'groups' in tmp_data: # do not store actual file in session
+            del tmp_data['groups']
         # should the server or the user store this information?
         session['details'] = tmp_data
         # validate the form ourselves
@@ -79,11 +82,22 @@ def details():
             return redirect(url_for('details'))
         
         groupsdata = None
+        # was a file uploaded?
         if hasattr(form, 'groups') and form.groups.data:
-            groupsdata, err = read_groups(form.groups.data.split('\n'), rawdata)
+            f = form.groups.data
+            filename = secure_filename(f.filename) # to prevent cd ../ attacks
+            if filename != 'groups.tab':
+                err = 'Filename must match groups.tab'
+                flash(err)
+                return redirect(url_for('details'))
+            # file must be converted from bytes to string
+            groupsdata, err = read_groups(f.read().decode('utf-8').split('\n'), rawdata)
             if err:
                 flash(err)
                 return redirect(url_for('details'))
+            else:
+                session['details']['groupsdata'] = groupsdata # add the data for access later
+
         contrastsdata = None
         if hasattr(form, 'contrasts') and form.contrasts.data:
             if groupsdata:
@@ -183,6 +197,8 @@ def logout():
             del session['basics'] # delete the form inputs
         if 'details' in session:
             del session['details']
+        if 'groupsdata' in session:
+            del session['groupsdata']
         flash('Logout successful')
     return redirect(url_for('login'))
 
