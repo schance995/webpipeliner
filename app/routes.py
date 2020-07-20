@@ -7,6 +7,7 @@ import paramiko
 from app.user import User
 from app.families import getFamilies, getGenomes, getPipelines, FAMILIES_JSON
 from app.checks import read_data_dir, read_groups, read_contrasts
+from json import dumps, loads
 
 user = User()
 '''
@@ -46,7 +47,6 @@ def basics():
         del tmp_data['next_button']
         # store form data
         session['basics'] = tmp_data
-        
         return redirect(url_for('details'))
     return render_template('basics.html', title='Basics', current_user=user, form=form, families=FAMILIES_JSON)
 
@@ -70,18 +70,23 @@ def details():
         tmp_data = form.data # a deep copy of the data is created
         del tmp_data['csrf_token']
         del tmp_data['next_button']
-        if 'groups' in tmp_data: # do not store actual file in session
+        if 'groups' in tmp_data: # do not store actual files in session
             del tmp_data['groups']
+        if 'contrasts' in tmp_data:
+            del tmp_data['contrasts']
         # should the server or the user store this information?
-        session['details'] = tmp_data
+        session['details'] = {**session['details'], **tmp_data}
+        # merge dictionaries with tmp_data having priority. user does not have to reupload groups or contrasts if they already did so
+        # not sure whether this is a good idea or not
+
         # validate the form ourselves
-        
         rawdata, paired_end, err = read_data_dir('rawdata') # directory is relative to app folder
         if err: # reject
             flash(err)
             return redirect(url_for('details'))
         
-        groupsdata = None
+        # groupsjson may already exist
+        groupsdata = None if 'groupsjson' not in session['details'] else loads(session['details']['groupsjson'])
         # was a file uploaded?
         if hasattr(form, 'groups') and form.groups.data:
             f = form.groups.data
@@ -96,15 +101,22 @@ def details():
                 flash(err)
                 return redirect(url_for('details'))
             else:
-                session['details']['groupsdata'] = groupsdata # add the data for access later
+                session['details']['groupsjson'] = dumps(groupsdata) # add the data for access later
 
-        contrastsdata = None
         if hasattr(form, 'contrasts') and form.contrasts.data:
             if groupsdata:
-                contrastsdata, err = read_contrasts(form.contrasts.data.split('\n'), groupsdata['rgroups'])
+                f = form.contrasts.data
+                filename = secure_filename(f.filename) # to prevent cd ../ attacks
+                if filename != 'contrasts.tab':
+                    err = 'Filename must match contrasts.tab'
+                    flash(err)
+                    return redirect(url_for('details'))
+                contrastsdata, err = read_contrasts(f.read().decode('utf-8').split('\n'), groupsdata['rgroups'])
                 if err:
                     flash(err)
                     return redirect(url_for('details'))
+                else:
+                    session['details']['contrastsjson'] = dumps(contrastsdata)
             else:
                 flash('Must define groups in order to define contrasts')
                 return redirect(url_for('details'))
@@ -135,22 +147,6 @@ def submit():
         return redirect(url_for('details'))
     return render_template('submit.html', title='Submit', current_user=user)
 
-'''
-@app.route('/dynamic/<family>') # takes a pipeline parameter
-def dynamic(family):
-    return jsonify(familiesAsDict())
-'''
-'''
-pipelineArray = []
-for p in pipelines:
-    pipelineObj = {}
-    pipelineObj['pipeline'] = p
-    pipelineArray.append(pipelineObj)
-return jsonify({'pipelines': pipelineArray})
-'''
-# will be interpreted as an object in javascript
-# this route is called every time the state changes
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if user.auth:
@@ -162,6 +158,7 @@ def login():
         # disabled ssh login for now.
         user.name = username
         user.auth = True
+        # session['formdata'] = {}
         flash('Login successful')
         return redirect(url_for('basics'))
         '''
@@ -193,12 +190,7 @@ def logout():
     '''
     if user.auth:
         user.auth = False
-        if 'basics' in session:
-            del session['basics'] # delete the form inputs
-        if 'details' in session:
-            del session['details']
-        if 'groupsdata' in session:
-            del session['groupsdata']
+        session.clear()
         flash('Logout successful')
     return redirect(url_for('login'))
 

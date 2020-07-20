@@ -1,7 +1,6 @@
 from re import match
 from os import walk
-from json import dumps
-
+# json dumps happens in routes
 def valid_filename(filename):
     rgx = '^(.+)\.(R[12]\.fastq\.gz)$'
     m = match(rgx, filename)
@@ -51,7 +50,8 @@ def read_data_dir(path):
             pass # to signify end of foor loop
         else:
             err = 'The selected directory is empty.'
-        return (rawdata, paired_end, err)
+        return (None, None) if err else (rawdata, paired_end) + (err, ) # a tuple
+        # element-wise addition
 
 '''
 if file is uploaded lines can be read first then sent to the function:
@@ -89,13 +89,14 @@ def read_groups(lines, samples):
                 break
             d[sample] = parts[1] # group
             labels.append(parts[2]) # label. Must replace \r because of silly Windows carriage return (\r\n)
-    if err == '':
+    if err: # == ''
+        return (None, err)
+    else:
         groups['rsamps']=list(d.keys())
         groups['rgroups']=list(set(d.values())) # may be multiple groups
         groups['rlabels']=labels
-        groups = dumps(groups)
+        return (groups, err)
         # does this dictionary be named exactly this way?
-    return (groups, err)
 
 # code to verify groups.tab
 # groups.tab must exist, and the groups must exist in groups.tab.
@@ -112,7 +113,8 @@ def read_contrasts(lines, groups):
     line_num = 0
     for line in lines:
         line_num += 1
-        parts = line.split('\t')
+        line = line.replace('\r', '') # must replace \r because of Windows carriage return
+        parts = [p for p in line.split('\t') if len(p)]
         if len(parts) > 2:
             err = 'There are too many columns on line {}'.format(line_num)
             break
@@ -120,13 +122,14 @@ def read_contrasts(lines, groups):
             err = 'There are not enough columns on line {}'.format(line_num)
             break
 
-        parts[1] = parts[1].replace('\r', '') # only replacing where we expect \n should be good enough
+        # parts[1] = parts[1].replace('\r', '') # only replacing where we expect \n should be good enough
         if parts[0] and parts[1] in groups:
             contrasts.append(parts) # replace part of array
         else:
             err = 'The groups on line {} don\'t exist in groups.tab'.format(line_num)
             break
-    return (contrasts, err)
+    print(contrasts, err)
+    return (None if err else contrasts, err)
 
 # should for now select a local directory to demonstrate that porting code
 # shouldn't take too long.
