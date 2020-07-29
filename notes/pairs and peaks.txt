@@ -1,0 +1,10 @@
+Contrasts:
+Each line: Group2 \t Group1 \t readcount \t num samples
+Are there any restrictions on the uniqueness of Group1/Group2, besides that the groups must be defined as in groups.tab?
+
+Are contrast files 4 columns wide or 2 columns wide?
+
+Pairs: each tumor is unique. Are there any other restrictions?
+Each line: Normal\tTumor\n
+
+Peaks: is this the same as a contrasts.tab file?

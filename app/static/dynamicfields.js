@@ -31,4 +31,20 @@ family_form_select.change(function() {
     };
 });
 
+// let Flask validate the form
+$('#next_button').click(function(){
+        $.ajax({
+                url: '/formsubmit',
+                data: $('form[name="generalform"]').serialize(),
+                type: 'POST',
+                success: function(response){
+                        console.log(response);
+                },
+                error: function(error){
+                        console.log(error);
+                }
+        });
+});
+
+
 });

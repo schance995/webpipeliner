@@ -1,3 +1,5 @@
+# TODO 1 page form, ajax
+
 from flask import render_template, flash, redirect, url_for, request, jsonify, session
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
@@ -10,6 +12,7 @@ from app.checks import read_data_dir, read_groups, read_contrasts
 from json import dumps, loads
 
 user = User()
+form = None # global scope to allow formsubmit to see it
 '''
 ip = 'grace.umd.edu' # for testing
 ssh = paramiko.SSHClient()
@@ -24,12 +27,33 @@ def not_found_error(error):
 def internal_error(error):
     return render_template('500.html', current_user=user), 500
 
+@app.route('/formsubmit', methods=['POST'])
+def formsubmit():
+    print(request.form)
+    if form.validate():
+        return jsonify({'status': 'yes'}, 200)
+    else:
+        return jsonify({'status': 'no'}, 200)
+    '''
+    # print(request.form) # immutable multi dict
+    
+    # pl = request.form.get('pipeline')
+    # g = request.form.get('genome')
+        return dumps({'status': 'yes'})
+    except Exception as e:
+        print(e)
+        return dumps({'status': 'no'})
+    
+    # print("hello")
+    # return json.dumps({'status':'OK'})
+'''
+
 @app.route('/')
 @app.route('/basics', methods=['GET', 'POST'])
 def basics():
     if not user.auth: # check for login
         return redirect(url_for('login'))
-    form = None
+    global form
     # if the form was already completed then refills in some details
     if 'basics' in session:
         form = BasicsForm(data=session['basics'])
@@ -40,6 +64,7 @@ def basics():
     else:
         form = BasicsForm()
     # was everything filled in correctly?
+    '''
     if form.validate_on_submit():
         tmp_data = form.data # copy data as we don't need to store csrf I believe
         # remove unneeded keys
@@ -47,7 +72,8 @@ def basics():
         del tmp_data['next_button']
         # store form data
         session['basics'] = tmp_data
-        return redirect(url_for('details'))
+        # return redirect(url_for('details'))
+    '''
     return render_template('basics.html', title='Basics', current_user=user, form=form, families=FAMILIES_JSON)
 
 # this page has the particular details based on the pipeline, as well as the data/working directory selection

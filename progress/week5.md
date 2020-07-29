@@ -1,6 +1,6 @@
 Due to my final exam and starting a new class I haven't been able to accomplish much this week.
 
-I added a file upload button for groups and store the groups in  a json format in the user session.
+I added a file upload button for groups and store the groups in a json format in the user session.
 
 # Questions
 - A lot of the frontend requires backend in order to even imagine what it does (for example, accessing a remote directory) What should I be working on besides simulating the missing functionality?

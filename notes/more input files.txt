@@ -1,0 +1,38 @@
+Contrasts:
+Each line: Group2 \t Group1 \t readcount \t num samples
+Are there any restrictions on the uniqueness of Group1/Group2, besides that the groups must be defined as in groups.tab?
+That is correct. There are no restrictions. I would just remove any duplicate lines.
+Are contrast files 4 columns wide or 2 columns wide?
+The last two columns are optional.
+If a user does not provide a value for the 3-rd or 4-th column, set the value to “0.5” (that is our default).
+
+Pairs: each tumor is unique. Are there any other restrictions?
+Each line: Normal\tTumor\n
+That is it. Just like the groups.tab file, the Normal and Turmor  information originates from the filenames in the raw data directory. It is important to cross-reference the information in the pairs file against the filenames in the raw data directory (just to make sure there are no typos). I would also check to see if there are any duplicate lines and remove them if they exist.
+
+Peakcall.tab: 3 columns
+chip sample \t control sample \t group name
+
+Just like the pairs file, for each ChIP sample, there is a matching control sample (Input, IgG control, mock, no tag control, or WCE) to remove false-positives in a later stage of the pipeline. This is the second column in the file. Just like the pairs file, inputs can be paired to more than one ChIP sample (see screen-shot above) (edited) 
+12:04
+Information in the first and second column should match the filenames in the raw data directory. Just like before, it is important to cross-reference the information in these two columns against the filenames in the raw data directory.
+12:05
+The third column in this file is the sample’s  group name. I would also check it see if there are any duplicate lines and remove them if they exist. (edited) 
+12:08
+This pipeline (the ChIP-seq pipeline) has another file that is very similar to the RNA-seq contrasts.tab file.
+12:10
+It is called contrast.tab. Please not that the spelling of the file is different. It is missing the “s”; that is not a typo.
+12:11
+Anyway, this file is very similar to the contrasts.tab where 1st column == group1 and the 2nd column == group2.
+12:12
+But this file will only have two columns, there are no additional optional columns. (edited) 
+12:15
+Let me know if you have any questions.
+12:16
+And no worries about the refactoring your code to create the single form layout, I understand these things can take time.
+12:16
+Just let me know if you get blocked on anything
+
+fix the pull request/pip install problem.
+
+jquery the form fields
