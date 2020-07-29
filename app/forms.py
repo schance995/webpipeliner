@@ -1,9 +1,8 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, FloatField, IntegerField, Field
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, FloatField, IntegerField
 from wtforms.validators import DataRequired, Regexp, Optional, NoneOf, Length, AnyOf, ValidationError
-from wtforms.widgets import TextInput
-from app.families import getFamilies, getPipelines, getGenomes
+from app.families import getFamilies, getPipelines, getGenomes 
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -67,8 +66,8 @@ def validate_filename(shouldbe):
             raise ValidationError('Filename should match ' + filenam)
     return _validate_filename()
 '''
-# do nothing
-def skip(*args, **kwargs):
+
+def skip(*optional):
     pass
 
 # code to initialize the form functions
@@ -79,47 +78,40 @@ for f in getFamilies():
     # by default a family/pipeline are assigned to do nothing.
 
 # IMPORTANT: for forms that require extra fields, define functions here to add them.
-# the genome and form are passed in **kwargs, pass **kwargs as a parameter to any sub-functions
-# most functions do not require the 'genome' parameter but it is included for completeness in case functionality needs to be extended
-# form, genome = kwargs.get('form', None), kwargs.get('genome', None)
-def add_sample_info(**kwargs):
-    form = kwargs.get('form', None)
-    options = kwargs.get('options', None)
+def add_sample_info(form, *infos):
     filefield = lambda title: FileField('Upload {} (optional)'.format(title), validators=[Optional()])
-    if 'groups' in options:
+    if 'groups' in infos:
         setattr(form, 'groups', filefield('groups'))
-    if 'contrasts' in options:
+    if 'contrasts' in infos:
         setattr(form, 'contrasts', filefield('contrasts'))
-    if 'peaks' in options:
+    if 'peaks' in infos:
         setattr(form, 'peaks', filefield('peaks'))
-    if 'pairs' in options:
-        setattr(form, 'pairs', filefield('pairs'))
+    if 'pairs' in infos:
+        setattr(form, 'pairs', filefiled('pairs'))
 
 # differential expression analysis
-def add_fields_RNA_DEA(**kwargs):
-    form = kwargs.get('form', None)
+def add_fields_RNA_DEA(form):
     setattr(form, 'reportDiffExpGenes', BooleanField('Report differentially expressed genes'))
-    add_sample_info(options=['groups', 'contrasts'], **kwargs)
+    add_sample_info(form, 'groups', 'contrasts')
 
 # quality control analysis
-def add_fields_RNA_QCA(**kwargs):
-    add_sample_info(options=['groups'], **kwargs)
+def add_fields_RNA_QCA(form):
+    add_sample_info(form, 'groups')
 
 formFunctions['RNASeq']['Differential Expression Analysis'] = add_fields_RNA_DEA
 formFunctions['RNASeq']['Quality Control Analysis'] = add_fields_RNA_QCA
 
 # all exsomeseq pipelines require this
-def add_target_capture_kit(*args, **kwargs):
-    form = kwargs.get('form', None)
+def add_target_capture_kit(form):
     tck = StringField('Target Capture Kit',
         description='By default, the path to the Agilent SureSelect V7 targets file is filled in here',
         validators=[DataRequired(), Length(max=500)],
         default='/data/CCBR_Pipeliner/db/PipeDB/lib/Agilent_SSv7_allExons_hg19.bed')
     setattr(form, 'targetCaptureKit', tck)
 
-def add_fields_somatic_normal(**kwargs):
-    add_target_capture_kit(**kwargs)
-    add_sample_info(options=['pairs'], **kwargs,)
+def add_fields_somatic_normal(form):
+    add_target_capture_kit(form)
+    add_sample_info(form, 'pairs')
 
 for f in ['ExomeSeq', 'GenomeSeq']: # share the same pipelines
     formFunctions[f]['Initial QC'] = add_target_capture_kit
@@ -128,90 +120,80 @@ for f in ['ExomeSeq', 'GenomeSeq']: # share the same pipelines
     formFunctions[f]['Somatic Tumor-Normal'] = add_fields_somatic_normal
 
 # mirseq
-def add_fields_mir_CAP(**kwargs):
-    add_sample_info(options=['groups', 'contrasts'], **kwargs)
+def add_fields_mir_CAP(form):
+    add_sample_info(form, 'groups', 'contrasts')
 
-def add_fields_mir_v2(**kwargs):
-    form = kwargs.get('form', None)
-    setattr(form, 'identifyNovelmiRNAs', BooleanField('Identify Novel miRNAs'))
-    add_fields_mir_CAP(**kwargs)
+def add_fields_mir_v2(form):
+    add_fields_mir_CAP(form)
+    setattr(form, 'identifyNovelmiRNAs', BooleanField('Identify Novel miRNAs')
 
-formFunctions['mir-Seq']['CAPmirseq-plus'] = add_fields_mir_CAP
-formFunctions['mir-Seq']['miRSeq_v2'] = add_fields_mir_v2
+formFunctions['mir-Seq']['CAPmirseq-plus'] = add_fields_mir_CAP(form)
+formFunctions['mir-Seq']['miRSeq_v2'] = add_fields_mir_v2(form)
 
 # chipseq
-def add_fields_chip_QC(**kwargs):
-    add_sample_info(options=['kicks'], **kwargs)
+def add_fields_chip_QC(form):
+    add_sample_info(form, 'peaks')
 
-def add_fields_chip_seq(**kwargs):
-    add_sample_info(options=['peaks', 'groups'], **kwargs)
+def add_fields_chip_seq(form):
+    add_sample_info(form, 'peaks', 'groups')
 
-formFunctions['ChIPseq']['InitialChIPseqQC'] = add_fields_chip_QC
-formFunctions['ChIPseq']['ChIPseq'] = add_fields_chip_seq
+formFunctions['ChIPseq']['InitialChIPseqQC'] = add_fields_chip_QC(form)
+formFunctions['ChIPseq']['ChIPseq'] = add_fields_chip_seq(form)
 
 class FloatListField(Field):
     widget = TextInput()
-    # reads default value from a literal float list and returns a comma-separated string
+
     def _value(self):
         if self.data:
-            return ', '.join(self.data)
-#            return str(self.data).strip('[]')
+            return u', '.join(self.data)
         else:
-            return ''
-    # called at form submission but before validation
+            return u''
+    # should be already validated when called
     def process_formdata(self, valuelist):
         if valuelist:
-            self.data = [x.strip() for x in valuelist[0].split(',')]
+            self.data = [float(x.strip()) for x in valuelist[0].split(',')]
         else:
             self.data = []
 
-# custom validator for this one task
 def check_float_list(form, field):
-    for x in field.data:
-        try:
-            float(x)
-        except ValueError:
+    for x in field.data.split(','):
+        if type(x) != float:
             raise ValidationError('Must be a comma-separated list of floats')
 
-def create_clustering_resolution():
+def create_clustering_resolution(form):
     return FloatListField('Clustering Resolution(s)',
-        default=[0.4,0.6,0.8,1.0,1.2], # float array
+        default='0.4, 0.6, 0.8, 1.0, 1.2',
         validators=[DataRequired(), check_float_list])
 
 # scRNAseq
-def add_fields_scrna_QC(**kwargs):
-    form, genome = kwargs.get('form', None), kwargs.get('genome', None)
-    alist = ['SLM (Smart Local Moving)', 'Louvain (Original)', 'Louvain (with Multilevel Refinement)']
+def add_fields_scrna_QC(form):
     algorithms = SelectField('Clustering algorithm',
-        choices=[(a, a) for a in alist])
-#        default='SLM (Smart Local Moving)')
+        choices=['SLM (Smart Local Moving)', 'Louvain (Original)', 'Louvain (with Multilevel Refinement)'],
+        default='SLM (Smart Local Moving)')
     setattr(form, 'clusteringAlgorithm', algorithms)
-    setattr(form, 'clusteringResolution', create_clustering_resolution())
-    annotHuman = ["Human Primary Cell Atlas","Blueprint/ENCODE","Monaco Immune","Database of Immune Cell Expression (DICE)"]
-    annotMouse = ["ImmGen","Mouse RNASeq"]
-    annot = annotHuman if genome == 'GRCh38' else (annotMouse if genome == 'mm10' else None)
+    setattr(form, 'clusteringResolution', create_clustering_resolution(form))
     annotations = SelectField('Annotation database',
-        choices=[(a, a) for a in annot])
+        choices=['ImmGen', 'Mouse RNASeq'],
+        default='ImmGen')
     setattr(form, 'annotationDatabase', annotations)
-    setattr(form, 'citeseqIncluded', BooleanField('CITESeq Included'))
-    add_sample_info(**kwargs, options=['groups', 'contrasts'])
+    setattr(form, 'citeseqIncluded', BooleanField('CITESeq Included')
+    add_sample_info(form, 'groups', 'contrasts')
 
-# form elements are displayed in the same order they are added in
-def add_fields_scrna_DE(**kwargs):
-    form = kwargs.get('form', None)
-    setattr(form, 'prepatch', BooleanField('Use pre-batch/merged correction'))
-    setattr(form, 'postpatch', BooleanField('Use post-batch/integrated correction'))
-    setattr(form, 'clusteringResolution', create_clustering_resolution())
+def add_fields_scrna_DE(form): 
+    setattr(form, 'prepatch', BooleanField('Use pre-batch/merged correction')
+    setattr(form, 'postpatch', BooleanField('Use post-batch/integrated correction')
+    setattr(form, 'clusteringResolution', create_clustering_resolution(form))
     stats = SelectField('Statistical test',
-        choices = [(a, a) for a in ['MAST', 'DESeq2', 'Likelihood Ratio', 'Logistic regression', 'Negative Binomial', 'Wilcoxon', 'Student\'s T']],
+        choices = ['MAST', 'DESeq2', 'Likelihood Ratio', 'Logistic regression', 'Negative Binomial', 'Wilcoxon', 'Student\'s T'],
         default='MAST')
     setattr(form, 'statisticalTest', stats)
     setattr(form, 'minFraction', FloatField('Minimum fraction of cells expressing DE genes', default=0.1, validators=[DataRequired()]))
     setattr(form, 'minFoldChange', FloatField('Minimum fold change to report DE genes', default=0.25, validators=[DataRequired()]))
-    add_sample_info(**kwargs, options=['groups', 'contrasts'])
+    add_sample_info(form, 'groups', 'contrasts')
 
-formFunctions['scRNAseq']['Initial QC'] = add_fields_scrna_QC
-formFunctions['scRNAseq']['Differential Expression'] = add_fields_scrna_DE
+formFunctions['scRNAseq']['Initial QC'] = add_fields_scrna_QC(form)
+formFunctions['scRNAseq']['Differential Expression'] = add_fields_scrna_QC(form)
+
 
 # dynamic forms are created here by updating an internal subclass's attributes
 def create_details_form(family, pipeline, genome):
@@ -220,7 +202,7 @@ def create_details_form(family, pipeline, genome):
 
 # call the correct function from the dictionary and raise an error if something's not found.
     try:
-        formFunctions[family][pipeline](form=TemplateDetailsForm, genome=genome)
+        formFunctions[family][pipeline](TemplateDetailsForm)
     except KeyError as e:
         print(e)
 
