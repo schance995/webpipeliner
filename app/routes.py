@@ -100,8 +100,16 @@ def details():
             del tmp_data['groups']
         if 'contrasts' in tmp_data:
             del tmp_data['contrasts']
+
+        # merge tmp data with details?
+        '''
+        if 'details' in session:
+            for key in tmp_data.keys():
+                if key in session['details']:
+                    tmp_data[key] = session['details'][key]
+        '''
+        session['details'] = tmp_data
         # should the server or the user store this information?
-        session['details'] = {**session['details'], **tmp_data}
         # merge dictionaries with tmp_data having priority. user does not have to reupload groups or contrasts if they already did so
         # not sure whether this is a good idea or not
 
