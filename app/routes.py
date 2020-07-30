@@ -51,9 +51,9 @@ def formsubmit():
 @app.route('/')
 @app.route('/basics', methods=['GET', 'POST'])
 def basics():
-    if not user.auth: # check for login
-        return redirect(url_for('login'))
-    global form
+#    if not user.auth: # check for login
+#        return redirect(url_for('login'))
+    form = None
     # if the form was already completed then refills in some details
     if 'basics' in session:
         form = BasicsForm(data=session['basics'])
@@ -80,8 +80,8 @@ def basics():
 # the user should fill out relevant details in the basics form first. Otherwise they will be redirected to fill out the forms.
 @app.route('/details', methods=['GET', 'POST'])
 def details():
-    if not user.auth: # check for login
-        return redirect(url_for('login'))
+#    if not user.auth: # check for login
+#        return redirect(url_for('login'))
     if 'basics' not in session: # basics form must be completed first
         flash("You need to fill out the Basics form before the Details!")
         return redirect(url_for('basics'))
@@ -183,17 +183,17 @@ def submit():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if user.auth:
-        return redirect(url_for('basics'))
-    form = LoginForm()
-    if form.validate_on_submit(): # is everything filled in correctly?
-        username = form.username.data
-        password = form.password.data
+#    if user.auth:
+#        return redirect(url_for('basics'))
+#    form = LoginForm()
+    if True: #form.validate_on_submit(): # is everything filled in correctly?
+        #username = form.username.data
+        #password = form.password.data
         # disabled ssh login for now.
-        user.name = username
+        user.name = 'login disabled'#username
         user.auth = True
         # session['formdata'] = {}
-        flash('Login successful')
+        flash('Login unimplemented')
         return redirect(url_for('basics'))
         '''
         try: # to login
@@ -210,24 +210,29 @@ def login():
             print(e)
             flash('Something went wrong when logging in. Please try again.')
             return redirect(url_for('login'))
-        '''
+        
     return render_template('login.html',  title='Log In', form=form, current_user=user)
+'''
 
 @app.route('/logout')
 def logout():
+    session.clear()
+    flash('Session cleared, logout unimplemented')
+    return redirect(url_for('basics'))
     '''
     stdin,stdout,stderr=ssh.exec_command("ls")
     outlines = stdout.readlines()
     resp = ''.join(outlines)
     print(outlines)
     sh.close() # logout
-    '''
+    
     if user.auth:
         user.auth = False
         session.clear()
         flash('Logout successful')
     return redirect(url_for('login'))
-
+    '''
+    
 @app.route('/about')
 def about():
     return render_template('about.html', current_user=user)
