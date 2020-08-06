@@ -4,33 +4,25 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, Selec
 from wtforms.validators import DataRequired, Regexp, Optional, NoneOf, Length, AnyOf, ValidationError
 from wtforms.widgets import TextInput
 from app.families import getFamilies, getPipelines, getGenomes
+from werkzeug.utils import secure_filename
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
+    username = StringField('Username', validators=[DataRequired(), Length(max=500)])
+    password = PasswordField('Password', validators=[DataRequired(), Length(max=500)])
     submit = SubmitField('Sign In')
 
 class BasicsForm(FlaskForm):
-    projectId = StringField('Project ID',
-        description='Examples: CCBR-nnn,Labname or short project name',
-        validators=[Optional(), Length(max=500)],
-        render_kw={"placeholder": "project"}) # suggested value
-    
-    # must use regexp to verify @nih.gov specifically
-    email = StringField('Email',
-        description='Must use @nih.gov email address',
-        validators=[DataRequired(),
-        Regexp('^\w*@nih\.gov$', message='Not an @nih.gov email address')])
-
-    flowCellId = StringField('Flow Cell ID',
-        description='FlowCellID, Labname, date or short project name',
-        validators=[Optional(), Length(max=500)],
-        render_kw={"placeholder": "stats"}) # suggested value
+    dataPath = StringField('Enter path to data directory',
+        default='',
+        validators=[DataRequired(), Length(max=500)])
+    workingPath = StringField('Enter path to working directory',
+        default='',
+        validators=[DataRequired(), Length(max=500)])
 
     # choices are (value, label) pairs. But only providing a value makes label = value
     family_choices = [(f, f) for f in getFamilies()]
     family_choices.insert(0, ('Select a family', 'Select a family'))
-    pipelineFamily = SelectField('Pipeline Family',
+    family = SelectField('Pipeline Family',
         choices=family_choices,
         default='Select a family',
         validators=[DataRequired(), NoneOf(['Select a family'], message='Must select a family')])
@@ -57,16 +49,24 @@ class BasicsForm(FlaskForm):
     next_button = SubmitField('Next')
 
 class DetailsForm(FlaskForm):
-    dataDirSelect = BooleanField('Data Dir to be implemented')
-    workingDirSelect = BooleanField('Working Dir to be implemented')
+    projectId = StringField('Project ID',
+        description='Examples: CCBR-nnn,Labname or short project name',
+        validators=[Optional(), Length(max=500)])
+        #render_kw={"placeholder": "project"}) # suggested value
+    
+    # must use regexp to verify @nih.gov specifically
+    email = StringField('Email',
+        description='Must use @nih.gov email address',
+        validators=[DataRequired(),
+        Regexp('^\w*@nih\.gov$', message='Not an @nih.gov email address'),
+        Length(max=500)])
+
+    flowCellId = StringField('Flow Cell ID',
+        description='FlowCellID, Labname, date or short project name',
+        validators=[Optional(), Length(max=500)])
+        #render_kw={"placeholder": "stats"}) # suggested value
     next_button = SubmitField('Next')
-'''
-def validate_filename(shouldbe):
-    def _validate_filename(form, field):
-        if field.data and field.data.filename != shouldbe:
-            raise ValidationError('Filename should match ' + filenam)
-    return _validate_filename()
-'''
+
 # do nothing
 def skip(*args, **kwargs):
     pass
@@ -81,23 +81,39 @@ for f in getFamilies():
 # IMPORTANT: for forms that require extra fields, define functions here to add them.
 # the genome and form are passed in **kwargs, pass **kwargs as a parameter to any sub-functions
 # most functions do not require the 'genome' parameter but it is included for completeness in case functionality needs to be extended
-# form, genome = kwargs.get('form', None), kwargs.get('genome', None)
+# form, genome = kwargs.get('form'), kwargs.get('genome')
+# use get to more gracefully handle bad input (returns None)
+
+def check_file_field(shouldbe, message=None):
+    if not message:
+        message = 'Filename must match {} exactly'.format(shouldbe)
+    def _check_file_field(form, field):
+        filename = secure_filename(field.data.filename) # to prevent cd ../ attacks, and gets the end filename
+        if filename != shouldbe:
+            raise ValidationError(message)
+    return _check_file_field
+
+def file_field(title):
+    return FileField('Upload {}.tab (optional)'.format(title),
+        validators=[Optional(), check_file_field(title+'.tab')]) # filename and contents validation should be performed in routes.py
+
 def add_sample_info(**kwargs):
-    form = kwargs.get('form', None)
-    options = kwargs.get('options', None)
-    filefield = lambda title: FileField('Upload {} (optional)'.format(title), validators=[Optional()])
+    form = kwargs.get('form')
+    options = kwargs.get('options')
     if 'groups' in options:
-        setattr(form, 'groups', filefield('groups'))
+        setattr(form, 'groups', file_field('groups'))
     if 'contrasts' in options:
-        setattr(form, 'contrasts', filefield('contrasts'))
+        setattr(form, 'contrasts', file_field('contrasts'))
     if 'peaks' in options:
-        setattr(form, 'peaks', filefield('peaks'))
+        setattr(form, 'peakcall', file_field('peakcall'))
     if 'pairs' in options:
-        setattr(form, 'pairs', filefield('pairs'))
+        setattr(form, 'pairs', file_field('pairs'))
+    if 'contrast' in options:
+        setattr(form, 'contrast', file_field('contrast'))
 
 # differential expression analysis
 def add_fields_RNA_DEA(**kwargs):
-    form = kwargs.get('form', None)
+    form = kwargs.get('form')
     setattr(form, 'reportDiffExpGenes', BooleanField('Report differentially expressed genes'))
     add_sample_info(options=['groups', 'contrasts'], **kwargs)
 
@@ -110,7 +126,7 @@ formFunctions['RNASeq']['Quality Control Analysis'] = add_fields_RNA_QCA
 
 # all exsomeseq pipelines require this
 def add_target_capture_kit(*args, **kwargs):
-    form = kwargs.get('form', None)
+    form = kwargs.get('form')
     tck = StringField('Target Capture Kit',
         description='By default, the path to the Agilent SureSelect V7 targets file is filled in here',
         validators=[DataRequired(), Length(max=500)],
@@ -119,7 +135,7 @@ def add_target_capture_kit(*args, **kwargs):
 
 def add_fields_somatic_normal(**kwargs):
     add_target_capture_kit(**kwargs)
-    add_sample_info(options=['pairs'], **kwargs,)
+    add_sample_info(options=['pairs'], **kwargs,) # required!
 
 for f in ['ExomeSeq', 'GenomeSeq']: # share the same pipelines
     formFunctions[f]['Initial QC'] = add_target_capture_kit
@@ -132,7 +148,7 @@ def add_fields_mir_CAP(**kwargs):
     add_sample_info(options=['groups', 'contrasts'], **kwargs)
 
 def add_fields_mir_v2(**kwargs):
-    form = kwargs.get('form', None)
+    form = kwargs.get('form')
     setattr(form, 'identifyNovelmiRNAs', BooleanField('Identify Novel miRNAs'))
     add_fields_mir_CAP(**kwargs)
 
@@ -144,7 +160,7 @@ def add_fields_chip_QC(**kwargs):
     add_sample_info(options=['kicks'], **kwargs)
 
 def add_fields_chip_seq(**kwargs):
-    add_sample_info(options=['peaks', 'groups'], **kwargs)
+    add_sample_info(options=['peaks', 'contrast'], **kwargs) # required!
 
 formFunctions['ChIPseq']['InitialChIPseqQC'] = add_fields_chip_QC
 formFunctions['ChIPseq']['ChIPseq'] = add_fields_chip_seq
@@ -180,7 +196,7 @@ def create_clustering_resolution():
 
 # scRNAseq
 def add_fields_scrna_QC(**kwargs):
-    form, genome = kwargs.get('form', None), kwargs.get('genome', None)
+    form, genome = kwargs.get('form'), kwargs.get('genome')
     alist = ['SLM (Smart Local Moving)', 'Louvain (Original)', 'Louvain (with Multilevel Refinement)']
     algorithms = SelectField('Clustering algorithm',
         choices=[(a, a) for a in alist])
@@ -189,7 +205,7 @@ def add_fields_scrna_QC(**kwargs):
     setattr(form, 'clusteringResolution', create_clustering_resolution())
     annotHuman = ["Human Primary Cell Atlas","Blueprint/ENCODE","Monaco Immune","Database of Immune Cell Expression (DICE)"]
     annotMouse = ["ImmGen","Mouse RNASeq"]
-    annot = annotHuman if genome == 'GRCh38' else (annotMouse if genome == 'mm10' else None)
+    annot = {'CRCh38': annotHuman, 'mm10': annotMouse}.get(genome)
     annotations = SelectField('Annotation database',
         choices=[(a, a) for a in annot])
     setattr(form, 'annotationDatabase', annotations)
@@ -198,7 +214,7 @@ def add_fields_scrna_QC(**kwargs):
 
 # form elements are displayed in the same order they are added in
 def add_fields_scrna_DE(**kwargs):
-    form = kwargs.get('form', None)
+    form = kwargs.get('form')
     setattr(form, 'prepatch', BooleanField('Use pre-batch/merged correction'))
     setattr(form, 'postpatch', BooleanField('Use post-batch/integrated correction'))
     setattr(form, 'clusteringResolution', create_clustering_resolution())

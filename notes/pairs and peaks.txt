@@ -1,10 +1,20 @@
 Contrasts:
 Each line: Group2 \t Group1 \t readcount \t num samples
-Are there any restrictions on the uniqueness of Group1/Group2, besides that the groups must be defined as in groups.tab?
+Remove duplicate lines
 
 Are contrast files 4 columns wide or 2 columns wide?
 
-Pairs: each tumor is unique. Are there any other restrictions?
+The last 2 columns are optional, and should just default to 0.5 if not included
+
+Pairs: each tumor is unique. Make sure that the inputs exist in the raw data directory. And remove duplicate lines
 Each line: Normal\tTumor\n
 
-Peaks: is this the same as a contrasts.tab file?
+Peakcall
+ChIP sample \t control sample \t name
+samples should exist in raw data directory.
+And remove duplicate lines
+
+Contrast.tab
+group1 \t group2
+
+Catch all errors and notify user of their locations.

@@ -11,19 +11,16 @@
 <hr>
 {# must render fields independently because of dynamic forms #} 
 {% if form %}
-    <form class="form form-horizontal" name="generalform" method="post" role="form">
+    <form class="form form-horizontal" method="post" role="form" name="basics_form" id="basics_form">
     
     {{ form.hidden_tag() }}
     {{ wtf.form_errors(form, hiddens="only") }}
-    {{ wtf.form_field(form.projectId, placeholder='project')}}
-    {{ wtf.form_field(form.email) }}
-    {{ wtf.form_field(form.flowCellId, placeholder='stats') }}
-    {{ wtf.form_field(form.pipelineFamily) }}
-    {{ wtf.form_field(form.pipeline) }}
-    {{ wtf.form_field(form.genome) }}
+    {% for field in form if not (field.name in ['next_button', 'csrf_token']) %}
+        {{ wtf.form_field(field) }}
+    {% endfor %}
     <label class="control-label">Next</label>
-    <br><input class="btn btn-primary btn-block" id="next_button" name="next_button" type="button" value="Next">
-    
+    <br>
+    <input class="btn btn-primary btn-block" id="next_button" name="next_button" type="submit" value="Next">
     <br>
     </form>
 {% endif %}    
@@ -32,6 +29,6 @@
 {% block scripts %}
     {{ super() }}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
-    <script src="{{ url_for('static', filename='dynamicfields.js') }}"></script>
+    <script src="{{ url_for('static', filename='basics.js') }}"></script>
 {% endblock %}
 
