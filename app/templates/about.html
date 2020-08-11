@@ -2,10 +2,59 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
+<style>
+table {
+	border-collapse: collapse;
+	width: 100%;
+}
+table + table {
+	margin-top: 1em;
+}
+thead {
+	background: #EEE;
+	text-align: left;
+}
+th, td {
+	border: 1px solid #EEE;
+	padding: 5px 10px;
+}
+
+hr {
+	background: #EEE;
+	border: 0;
+	height: 1px;
+}
+</style>
 <h1>About this web app</h1>
 <hr>
-<p>
-Helpful Information Goes Here.
-</p>
+<p>Welcome to <strong>Pipeliner</strong> - an open-source and scalable solution to NGS analysis powered by the NIH&#39;s <a href="https://hpc.nih.gov/">Biowulf</a> cluster. 
+Pipeliner provides access to a set of best-practices NGS pipelines developed, tested, and benchmarked by experts at <a href="https://ccbr.ccr.cancer.gov/">CCBR</a> and <a href="https://ncbr.ncifcrf.gov/">NCBR</a>. This wiki is the main source of documentation for users and developers working with or contributing to <a href="https://github.com/CCBR/Pipeliner"><code>Pipeliner</code></a>. If you are unfamiliar with Pipeliner or this is the first time hearing about this project, please check out the links below.</p>
+<h2 id="quick-navigation">Quick Navigation</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"><img src="https://github.com/CCBR/Pipeliner/wiki/Images/assets/dna_icon.png" width="64px" height="64px"/></th>
+<th style="text-align:center"><img src="https://github.com/CCBR/Pipeliner/wiki/Images/assets/group_icon.png" width="64px" height="64px"/></th>
+<th style="text-align:center"><img src="https://github.com/CCBR/Pipeliner/wiki/Images/assets/question_icon.png" width="64px" height="64px"/></th>
+<th style="text-align:center"><img src="https://github.com/CCBR/Pipeliner/wiki/Images/assets/doc_icon.png" width="64px" height="64px"/></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><strong><a href="https://github.com/CCBR/Pipeliner/wiki/1.-Introduction-to-Pipeliner#introduction-to-pipeliner">Getting Started</a></strong></td>
+<td style="text-align:center"><strong><a href="https://github.com/CCBR/Pipeliner/wiki/Community-and-contribution">Project &amp; Community</a></strong></td>
+<td style="text-align:center"><strong><a href="https://github.com/CCBR/Pipeliner/wiki/7.-FAQ#faq">FAQs</a></strong></td>
+<td style="text-align:center"><strong><a href="https://github.com/CCBR/Pipeliner/wiki/Pipeline-Documentation">Pipeline Documentation</a></strong></td>
+</tr>
+<tr>
+<td style="text-align:center">Introducing Pipeliner, prerequisites and how to get started</td>
+<td style="text-align:center">About our community, how to contribute and make feature requests</td>
+<td style="text-align:center">Frequently asked questions and solutions to common problems</td>
+<td style="text-align:center">Detailed technical documentation for users and developers about each of our pipelines</td>
+</tr>
+</tbody>
+</table>
+<h2 id="questions-or-need-help-">Questions or need help?</h2>
+<p>Please check out our <a href="https://github.com/CCBR/Pipeliner/wiki/7.-FAQ#faq">FAQ</a> or <a href="https://github.com/CCBR/Pipeliner/wiki/Contact-us">contact</a> page for different ways of getting in touch with the team.</p>
 
 {% endblock %}

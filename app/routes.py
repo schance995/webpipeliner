@@ -24,27 +24,6 @@ def not_found_error(error):
 def internal_error(error):
     return render_template('500.html', current_user=user), 500
 
-@app.route('/formsubmit', methods=['POST'])
-def formsubmit():
-    print(request.form)
-    if form.validate():
-        return jsonify({'status': 'yes'}, 200)
-    else:
-        return jsonify({'status': 'no'}, 200)
-    '''
-    # print(request.form) # immutable multi dict
-    
-    # pl = request.form.get('pipeline')
-    # g = request.form.get('genome')
-        return dumps({'status': 'yes'})
-    except Exception as e:
-        print(e)
-        return dumps({'status': 'no'})
-    
-    # print("hello")
-    # return json.dumps({'status':'OK'})
-'''
-
 @app.route('/')
 @app.route('/basics', methods=['GET', 'POST'])
 def basics():
@@ -65,8 +44,8 @@ def basics():
     if form.validate_on_submit():
         tmp_data = form.data # copy data as we don't need to store csrf I believe
         # remove unneeded keys
-        del tmp_data['csrf_token']
-        del tmp_data['next_button']
+        #del tmp_data['csrf_token']
+        #del tmp_data['next_button']
         # store form data
 
         datapath = 'rawdata' # tmp_data['dataPath'] # hardcoding a directory for test purposes
@@ -108,12 +87,12 @@ def details():
 
     if form.validate_on_submit(): # also checks for valid filenames
         tmp_data = form.data # a deep copy of the data is created
-        del tmp_data['csrf_token']
-        del tmp_data['next_button']
-        if 'groups' in tmp_data: # do not store actual files in session
-            del tmp_data['groups']
-        if 'contrasts' in tmp_data:
-            del tmp_data['contrasts']
+        #del tmp_data['csrf_token']
+        #del tmp_data['next_button']
+        # do not store actual files in session
+        for i in ['groups', 'contrasts', 'pairs', 'peakcall', 'contrast']:
+            if i in tmp_data:
+                del tmp_data[i]
         err = []
         # merge tmp data with details?
         '''
@@ -139,7 +118,7 @@ def details():
             if err:
                 for e in err:
                     flash(e, 'error')
-                form.groups.errors.extend(err)
+                #form.groups.errors.extend(err)
                 #return redirect(url_for('details'))
             else:
                 session['details']['groupsjson'] = dumps(groupsdata) # add the data for access later
@@ -151,44 +130,45 @@ def details():
                 if err:
                     for e in err:
                         flash(e, 'error')
-                    form.contrasts.errors.extend(err)
+                    #form.contrasts.errors.extend(err)
                     #return redirect(url_for('details'))
                     #1 / 0
                 else:
                     session['details']['contrastsjson'] = dumps(contrastsdata)
             else:
                 flash('Must define groups in order to define contrasts', 'error')
-                form.groups.errors.append(err)
+                #form.groups.errors.append(err)
                 #return redirect(url_for('details'))
 
         #checking other forms. tbd
         if hasattr(form, 'peakcall') and form.peakcall.data:
             f = form.peakcall.data
-            peaksdata, err = read_contrasts(f.read().decode('utf-8').split('\n'), rawdata) # is this how it goes?
+            peaksdata, err = read_peaks(f.read().decode('utf-8').split('\n'), rawdata) # is this how it goes?
             if err:
                 for e in err:
                     flash(e, 'error')
-                form.pairs.peakcall.extend(err)
+                #form.pairs.peakcall.extend(err)
             else:
                 session['details']['peaksjson'] = dumps(peaksdata)
 
         if hasattr(form, 'pairs') and form.pairs.data:
             f = form.pairs.data
-            pairsdata, err = read_contrasts(f.read().decode('utf-8').split('\n'), rawdata) # is this how it goes?
+            pairsdata, err = read_pairs(f.read().decode('utf-8').split('\n'), rawdata) # is this how it goes?
+            print(pairsdata, err)
             if err:
                 for e in err:
                     flash(e, 'error')
-                form.pairs.errors.extend(err)
+                #form.pairs.errors.extend(err)
             else:
                 session['details']['pairsjson'] = dumps(pairsdata)
 
         if hasattr(form, 'contrast') and form.contrast.data:
-            f = form.pairs.data
+            f = form.contrast.data
             contrast_data, err = read_contrast_(f.read().decode('utf-8').split('\n'), rawdata) # is this how it goes?
             if err:
                 for e in err:
                     flash(e, 'error')
-                form.pairs.contrast.extend(err)
+                #form.pairs.contrast.extend(err)
             else:
                 session['details']['contrast_json'] = dumps(contrast_data)
 
@@ -197,32 +177,15 @@ def details():
             return redirect(url_for('details'))
         else:
             user.details = True
-            return redirect(url_for('submit'))
+            flash('You have submitted your pipeline request, please check your email for the pipeline progress.', 'success')
+            # alert the user
+            return redirect(url_for('basics'))
         pass
     # if form.validate on submit ...
     elif 'details' in session: # what does this do again? I think it preserves prior inputs
         form.process(data=session['details'])
     # flash("Family = " + family + " and Pipeline = " + pipeline + " and Genome = " + genome, 'success')
     return render_template('details.html', title='Details', current_user=user, form=form, header='{}+{}+{}'.format(family, pipeline, genome))
-    
-# the user can review their inputs before submitting the job
-@app.route('/submit', methods=['GET', 'POST'])
-def submit():
-    if not user.auth: # check for login
-        return redirect(url_for('login'))
-    # user must have completed the basics and details forms before submitting
-    if user.basics:
-        flash(session['basics'])
-    else:
-        flash('You need to fill out the Basics form before submitting!', 'warning')
-        return redirect(url_for('basics'))
-
-    if user.details:
-        flash(session['details'])
-    else:
-        flash('You need to fill out the Details form before submitting!', 'warning')
-        return redirect(url_for('details'))
-    return render_template('submit.html', title='Submit', current_user=user)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -232,32 +195,13 @@ def login():
     if True: #form.validate_on_submit(): # is everything filled in correctly?
         #username = form.username.data
         #password = form.password.data
-        # disabled ssh login for now.
-        user.name = 'login disabled'#username
+        user.name = 'login disabled'
         user.auth = True
         user.basics = False
         user.details = False
         # session['formdata'] = {}
         flash('Logged in. Form progress cleared')
         return redirect(url_for('basics'))
-        '''
-        try: # to login
-            # will configure ssh later
-            # ssh.connect(ip, username=username, password=password)
-            user.name = username
-            user.auth = True
-            flash('Login successful')
-            return redirect(url_for('basics'))
-        except paramiko.AuthenticationException: # wrong credentials
-            flash('Invalid username or password')
-            return redirect(url_for('login'))
-        except Exception as e: # some other error
-            print(e)
-            flash('Something went wrong when logging in. Please try again.')
-            return redirect(url_for('login'))
-        
-    return render_template('login.html',  title='Log In', form=form, current_user=user)
-'''
 
 @app.route('/logout')
 def logout():

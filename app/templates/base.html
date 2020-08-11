@@ -19,6 +19,17 @@
         <link rel="manifest" href="{{ url_for('static', filename='favicons/manifest.json') }}">
         <link rel="shortcut icon" href="">
     {% endblock %}
+    
+    {% block styles %}
+    {{ super() }}
+    <style>
+    select { max-width: 80% }
+    input { max-width: 80% }
+    .form-horizontal .control-label.text-left{
+      text-align: left;
+    }
+    </style>
+    {% endblock %}
 {% endblock %}
 
 {% block metas %}
@@ -48,7 +59,6 @@
       <ul class="nav navbar-nav">
         <li><a href="{{ url_for('basics') }}">Basics</a></li>
         <li><a href="{{ url_for('details') }}">Details</a></li>
-        <li><a href="{{ url_for('submit') }}">Submit</a></li>
         {% if current_user and current_user.auth %}
         <li><a href="{{ url_for('logout') }}">Logout</a></li>
         {% else %}
@@ -70,6 +80,8 @@
   <div class="alert alert-danger alert-dismissible" role="alert">
   {% elif category == 'success' %}
   <div class="alert alert-success alert-dismissible" role="alert">
+  {% elif category == 'warning' %}
+  <div class="alert alert-warning alert-dismissible" role="alert">
   {% else %}
   <div class="alert alert-info alert-dismissible" role="alert">
   {% endif %}

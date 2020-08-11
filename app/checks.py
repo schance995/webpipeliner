@@ -39,7 +39,7 @@ def read_data_dir(path):
                 valid, e = valid_filename(f)
                 if valid: # invalid filename
                     m = match(rgx, f)
-                    print(m[1], m[2])
+                    # print(m[1], m[2])
                     # store filenames as { name w/o extension: 1 or 2
                     # m[1] matches sample name
                     # m[2] matches 1 or 2
@@ -54,7 +54,7 @@ def read_data_dir(path):
                 #     break
             pass # to signify end of foor loop
         else:
-            err = 'The selected directory is empty.'
+            err = 'The selected directory {} is empty.'.format(path)
         if err:
             return (None, None, err)
         else:
@@ -84,11 +84,11 @@ def read_groups(lines, inputdata):
         print(parts)
         if len(parts): # ignore empty lines
             if len(parts) > 3:
-                err.append('Line {}: has too many columns, should have exactly 3 columns'.format(line_num))
+                err.append('Groups.tab, line {}: has too many columns, should have exactly 3 columns'.format(line_num))
                 continue
                 #break
             elif len(parts) < 3:
-                err.append('Line {}: has too few columns, should have exactly 3 columns'.format(line_num))
+                err.append('Groups.tab, line {}: has too few columns, should have exactly 3 columns'.format(line_num))
                 continue
                 #break
             
@@ -100,7 +100,7 @@ def read_groups(lines, inputdata):
                 continue # do not read in the duplicate group
 
             if name not in inputdata:
-                err.append('Line {}: the sample name {} doesn\'t appear in your data directory'.format(line_num, name))
+                err.append('Groups.tab, {}: the sample name {} doesn\'t appear in your data directory'.format(line_num, name))
                 continue
                 #break
 
@@ -130,30 +130,33 @@ def read_contrasts(lines, samples):
     line_num = 0
     for line in lines:
         line_num += 1
-        parts = [p.strip() for p in line.split('\t')]
+        parts = [p for p in line.strip().split('\t') if p]
         if parts in contrasts: # skip duplicates
             continue
         if not len(parts): # skip blank lines
             continue
         if len(parts) > 4:
-            err.append('Line {}: needs between 2 to 4 entries'.format(line_num))
+            err.append('Contrasts.tab, line {}: needs between 2 to 4 entries'.format(line_num))
             continue
             # break
         elif len(parts) < 2:
-            err.append('Line {}: needs between 2 to 4 entries'.format(line_num))
+            err.append('Contrasts.tab, line {}: needs between 2 to 4 entries'.format(line_num))
             continue
             # break
         
         if parts[0] in samples and parts[1] in samples:
             while len(parts) < 4:
                 parts.append(0.5) # default values when not included
-            if isinstance(parts[2], Number) and isinstance(parts[2], Number):
+            try:
+                parts[2] = float(parts[2])
+                parts[3] = float(parts[3])
                 contrasts.append(parts)
-            else:
-                err.append('Line {}: columns 3 and 4 should be (small) numbers')
+            except ValueError:
+                err.append('Contrasts.tab, line {}: columns 3 and 4 should be (small) numbers'.format(line_num))
+                
         else:
             s = parts[0] if parts[0] not in samples else parts[1]
-            err.append('Line {}: the sample {} doesn\'t exist in samples.tab'.format(line_num, s))
+            err.append('Contrasts.tab, line {}: the sample {} doesn\'t exist in groups.tab'.format(line_num, s))
             # break
     #print(contrasts, err)
     return (None, err) if err else (contrasts, err)
@@ -167,24 +170,24 @@ def read_pairs(lines, samples):
 
     for line in lines:
         line_num += 1
-        parts = [p.strip() for p in line.split('\t')]
+        parts = [p for p in line.strip().split('\t') if p]
         if parts in pairs: # skip duplicates
             continue
         if not len(parts): # skip blank lines
             continue
         if len(parts) == 1 or len(parts) > 2:
-            err.append('Line {}: needs 2 entries exactly').format(line_num)
+            err.append('Pairs.tab, line {}: needs 2 entries exactly').format(line_num)
             continue
         if parts[0] in samples and parts[1] in samples:
             if parts[1] in tumors:
-                err.append('Line {}: tumor "{}" must be unique').format(parts[1])
+                err.append('Pairs.tab, line {}: tumor "{}" must be unique').format(parts[1])
                 continue
             else:
                 pairs.append(parts)
         else:
             s = parts[0] if parts[0] not in samples else parts[1]
-            err.append('Line {}: the sample {} doesn\'t exist in samples.tab'.format(line_num, s))
-
+            err.append('Pairs.tab, line {}: the sample name {} doesn\'t appear in your data directory'.format(line_num, s))
+    
     return (None, err) if err else (pairs, err)
 
 # reading peakcall.tab
@@ -195,19 +198,19 @@ def read_peaks(lines, samples):
 
     for line in lines:
         line_num += 1
-        parts = [p.strip() for p in line.split('\t')]
+        parts = [p for p in line.strip().split('\t') if p]
         if parts in peaks: # skip duplicates
             continue
         if not len(parts): # skip blank lines
             continue
         if len(parts) != 3:
-            err.append('Line {}: needs 3 entries exactly').format(line_num)
+            err.append('Peakcall.tab, line {}: needs 3 entries exactly'.format(line_num))
         else:
             if parts[0] in samples and parts[1] in samples:
                 peaks.append(parts)
             else:
                 s = parts[0] if parts[0] not in samples else parts[1]
-                err.append('Line {}: the sample {} doesn\'t exist in samples.tab'.format(line_num, s))
+                err.append('Peakcall.tab, line {}: the sample name {} doesn\'t appear in your data directory'.format(line_num, s))
 
     return (None, err) if err else (peaks, err)
 
@@ -219,19 +222,19 @@ def read_contrast_(lines, samples):
 
     for line in lines:
         line_num += 1
-        parts = [p.strip() for p in line.split('\t')]
-        if parts in peaks: # skip duplicates
+        parts = [p for p in line.strip().split('\t') if p]
+        if parts in contrast_: # skip duplicates
             continue
         if not len(parts): # skip blank lines
             continue
         if len(parts) != 2:
-            err.append('Line {}: needs 2 entries exactly').format(line_num)
+            err.append('Contrast.tab, line {}: needs 2 entries exactly').format(line_num)
         else:
             if parts[0] in samples and parts[1] in samples:
                 contrast_.append(parts)
             else:
                 s = parts[0] if parts[0] not in samples else parts[1]
-                err.append('Line {}: the sample {} doesn\'t exist in samples.tab'.format(line_num, s))
+                err.append('Contrast.tab, line {}: the sample {} doesn\'t exist in peakcall.tab'.format(line_num, s))
 
     return (None, err) if err else (contrast_, err)
 

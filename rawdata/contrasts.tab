@@ -1,2 +1,3 @@
 Cntrl	TgA
-TgA	TgB
+TgA	TgB	0.7
+TgB	Cntrl	0.4	0.2

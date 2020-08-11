@@ -93,33 +93,43 @@ def check_file_field(shouldbe, message=None):
             raise ValidationError(message)
     return _check_file_field
 
-def file_field(title):
-    return FileField('Upload {}.tab (optional)'.format(title),
-        validators=[Optional(), check_file_field(title+'.tab')]) # filename and contents validation should be performed in routes.py
+def file_field(title, required):
+    label = 'Upload ' + title + '.tab'
+    validators = []
+    if required:
+        validators.append(DataRequired())
+        label += ' (required)'
+    else:
+        validators.append(Optional())
+        label += ' (optional)'
+    validators.append(check_file_field(title+'.tab'))
+    return FileField(label, validators)
+    # filename and contents validation should be performed in routes.py
 
 def add_sample_info(**kwargs):
     form = kwargs.get('form')
     options = kwargs.get('options')
-    if 'groups' in options:
-        setattr(form, 'groups', file_field('groups'))
-    if 'contrasts' in options:
-        setattr(form, 'contrasts', file_field('contrasts'))
-    if 'peaks' in options:
-        setattr(form, 'peakcall', file_field('peakcall'))
-    if 'pairs' in options:
-        setattr(form, 'pairs', file_field('pairs'))
-    if 'contrast' in options:
-        setattr(form, 'contrast', file_field('contrast'))
+    if options: # input should be a dictionary that lists whether the form input is required
+        if 'groups' in options:
+            setattr(form, 'groups', file_field('groups', options['groups']))
+        if 'contrasts' in options:
+            setattr(form, 'contrasts', file_field('contrasts', options['contrasts']))
+        if 'peaks' in options:
+            setattr(form, 'peakcall', file_field('peakcall', options['peaks']))
+        if 'pairs' in options:
+            setattr(form, 'pairs', file_field('pairs', options['pairs']))
+        if 'contrast' in options:
+            setattr(form, 'contrast', file_field('contrast', options['contrast']))
 
 # differential expression analysis
 def add_fields_RNA_DEA(**kwargs):
     form = kwargs.get('form')
     setattr(form, 'reportDiffExpGenes', BooleanField('Report differentially expressed genes'))
-    add_sample_info(options=['groups', 'contrasts'], **kwargs)
+    add_sample_info(options={'groups': False, 'contrasts': False}, **kwargs)
 
 # quality control analysis
 def add_fields_RNA_QCA(**kwargs):
-    add_sample_info(options=['groups'], **kwargs)
+    add_sample_info(options={'groups': False}, **kwargs)
 
 formFunctions['RNASeq']['Differential Expression Analysis'] = add_fields_RNA_DEA
 formFunctions['RNASeq']['Quality Control Analysis'] = add_fields_RNA_QCA
@@ -135,7 +145,7 @@ def add_target_capture_kit(*args, **kwargs):
 
 def add_fields_somatic_normal(**kwargs):
     add_target_capture_kit(**kwargs)
-    add_sample_info(options=['pairs'], **kwargs,) # required!
+    add_sample_info(options={'pairs': True}, **kwargs,) # required!
 
 for f in ['ExomeSeq', 'GenomeSeq']: # share the same pipelines
     formFunctions[f]['Initial QC'] = add_target_capture_kit
@@ -145,7 +155,7 @@ for f in ['ExomeSeq', 'GenomeSeq']: # share the same pipelines
 
 # mirseq
 def add_fields_mir_CAP(**kwargs):
-    add_sample_info(options=['groups', 'contrasts'], **kwargs)
+    add_sample_info(options={'groups': False, 'contrasts': False}, **kwargs)
 
 def add_fields_mir_v2(**kwargs):
     form = kwargs.get('form')
@@ -157,10 +167,10 @@ formFunctions['mir-Seq']['miRSeq_v2'] = add_fields_mir_v2
 
 # chipseq
 def add_fields_chip_QC(**kwargs):
-    add_sample_info(options=['kicks'], **kwargs)
+    add_sample_info(options={'peaks': False}, **kwargs)
 
 def add_fields_chip_seq(**kwargs):
-    add_sample_info(options=['peaks', 'contrast'], **kwargs) # required!
+    add_sample_info(options={'peaks': True, 'contrast': True}, **kwargs) # required!
 
 formFunctions['ChIPseq']['InitialChIPseqQC'] = add_fields_chip_QC
 formFunctions['ChIPseq']['ChIPseq'] = add_fields_chip_seq
@@ -210,7 +220,7 @@ def add_fields_scrna_QC(**kwargs):
         choices=[(a, a) for a in annot])
     setattr(form, 'annotationDatabase', annotations)
     setattr(form, 'citeseqIncluded', BooleanField('CITESeq Included'))
-    add_sample_info(**kwargs, options=['groups', 'contrasts'])
+    add_sample_info(**kwargs, options={'groups': False, 'contrasts': False})
 
 # form elements are displayed in the same order they are added in
 def add_fields_scrna_DE(**kwargs):
@@ -224,7 +234,7 @@ def add_fields_scrna_DE(**kwargs):
     setattr(form, 'statisticalTest', stats)
     setattr(form, 'minFraction', FloatField('Minimum fraction of cells expressing DE genes', default=0.1, validators=[DataRequired()]))
     setattr(form, 'minFoldChange', FloatField('Minimum fold change to report DE genes', default=0.25, validators=[DataRequired()]))
-    add_sample_info(**kwargs, options=['groups', 'contrasts'])
+    add_sample_info(**kwargs, options={'groups': False, 'contrasts': False})
 
 formFunctions['scRNAseq']['Initial QC'] = add_fields_scrna_QC
 formFunctions['scRNAseq']['Differential Expression'] = add_fields_scrna_DE
