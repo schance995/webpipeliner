@@ -10,11 +10,6 @@ from app.checks import read_data_dir, read_groups, read_contrasts, read_pairs, r
 from json import dumps, loads
 
 user = User()
-'''
-ip = 'grace.umd.edu' # for testing
-ssh = paramiko.SSHClient()
-ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-'''
 
 @app.errorhandler(404)
 def not_found_error(error):
@@ -95,12 +90,7 @@ def details():
                 del tmp_data[i]
         err = []
         # merge tmp data with details?
-        '''
-        if 'details' in session:
-            for key in tmp_data.keys():
-                if key in session['details']:
-                    tmp_data[key] = session['details'][key]
-        '''
+
         session['details'] = tmp_data
         # load rawdata back into memory for validating inputs
         rawdata = session['basics']['rawdata']
@@ -136,14 +126,14 @@ def details():
                 else:
                     session['details']['contrastsjson'] = dumps(contrastsdata)
             else:
-                flash('Must define groups in order to define contrasts', 'error')
+                flash('Must also upload groups.tab in order to define contrasts.tab', 'error')
                 #form.groups.errors.append(err)
                 #return redirect(url_for('details'))
 
         #checking other forms. tbd
         if hasattr(form, 'peakcall') and form.peakcall.data:
             f = form.peakcall.data
-            peaksdata, err = read_peaks(f.read().decode('utf-8').split('\n'), rawdata) # is this how it goes?
+            peaksdata, err = read_peaks(f.read().decode('utf-8').split('\n'), rawdata)
             if err:
                 for e in err:
                     flash(e, 'error')
@@ -153,7 +143,7 @@ def details():
 
         if hasattr(form, 'pairs') and form.pairs.data:
             f = form.pairs.data
-            pairsdata, err = read_pairs(f.read().decode('utf-8').split('\n'), rawdata) # is this how it goes?
+            pairsdata, err = read_pairs(f.read().decode('utf-8').split('\n'), rawdata)
             print(pairsdata, err)
             if err:
                 for e in err:
@@ -163,15 +153,21 @@ def details():
                 session['details']['pairsjson'] = dumps(pairsdata)
 
         if hasattr(form, 'contrast') and form.contrast.data:
-            f = form.contrast.data
-            contrast_data, err = read_contrast_(f.read().decode('utf-8').split('\n'), rawdata) # is this how it goes?
-            if err:
-                for e in err:
-                    flash(e, 'error')
-                #form.pairs.contrast.extend(err)
-            else:
-                session['details']['contrast_json'] = dumps(contrast_data)
-
+            if peaksdata:
+                f = form.contrast.data
+                groups_to_check = {row[-1] for row in peaksdata}
+                contrast_data, err = read_contrast_(f.read().decode('utf-8').split('\n'), groups_to_check)
+                if err:
+                    for e in err:
+                        flash(e, 'error')
+                    #form.pairs.contrast.extend(err)
+                else:
+                    session['details']['contrast_json'] = dumps(contrast_data)
+        else:
+            flash('Must also upload peakcall.tab to upload contrast.tab', 'error')
+            #form.groups.errors.append(err)
+            #return redirect(url_for('details'))
+            
         # at this point everything is read and ok
         if err:
             return redirect(url_for('details'))
@@ -192,7 +188,7 @@ def login():
 #    if user.auth:
 #        return redirect(url_for('basics'))
 #    form = LoginForm()
-    if True: #form.validate_on_submit(): # is everything filled in correctly?
+    if not user.auth: #form.validate_on_submit(): # is everything filled in correctly?
         #username = form.username.data
         #password = form.password.data
         user.name = 'login disabled'
@@ -207,24 +203,12 @@ def login():
 def logout():
     session.clear()
     flash('Logged out. Session cleared, form progress cleared')
-    user.auth = False
-    user.basics = False
-    user.details = False
-    return redirect(url_for('basics'))
-    '''
-    stdin,stdout,stderr=ssh.exec_command("ls")
-    outlines = stdout.readlines()
-    resp = ''.join(outlines)
-    print(outlines)
-    sh.close() # logout
-    
     if user.auth:
         user.auth = False
-        session.clear()
-        flash('Logout successful')
-    return redirect(url_for('login'))
-    '''
-    
+        user.basics = False
+        user.details = False
+    return redirect(url_for('basics'))
+
 @app.route('/about')
 def about():
     return render_template('about.html', current_user=user)

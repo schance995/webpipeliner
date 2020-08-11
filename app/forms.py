@@ -65,7 +65,7 @@ class DetailsForm(FlaskForm):
         description='FlowCellID, Labname, date or short project name',
         validators=[Optional(), Length(max=500)])
         #render_kw={"placeholder": "stats"}) # suggested value
-    next_button = SubmitField('Next')
+    submit_button = SubmitField('Submit Pipeline Request')
 
 # do nothing
 def skip(*args, **kwargs):
@@ -197,11 +197,11 @@ def check_float_list(form, field):
         try:
             float(x)
         except ValueError:
-            raise ValidationError('Must be a comma-separated list of floats')
+            raise ValidationError('Must be a comma-separated list of decimal numbers')
 
 def create_clustering_resolution():
     return FloatListField('Clustering Resolution(s)',
-        default=[0.4,0.6,0.8,1.0,1.2], # float array
+        default=['0.4','0.6','0.8','1.0','1.2'], # float array
         validators=[DataRequired(), check_float_list])
 
 # scRNAseq
@@ -215,7 +215,7 @@ def add_fields_scrna_QC(**kwargs):
     setattr(form, 'clusteringResolution', create_clustering_resolution())
     annotHuman = ["Human Primary Cell Atlas","Blueprint/ENCODE","Monaco Immune","Database of Immune Cell Expression (DICE)"]
     annotMouse = ["ImmGen","Mouse RNASeq"]
-    annot = {'CRCh38': annotHuman, 'mm10': annotMouse}.get(genome)
+    annot = {'GRCh38': annotHuman, 'mm10': annotMouse}.get(genome)
     annotations = SelectField('Annotation database',
         choices=[(a, a) for a in annot])
     setattr(form, 'annotationDatabase', annotations)

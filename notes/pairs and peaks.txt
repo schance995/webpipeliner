@@ -18,3 +18,6 @@ Contrast.tab
 group1 \t group2
 
 Catch all errors and notify user of their locations.
+
+contrasts.tab references groups.tab
+contrast.tab references peakcall.tab

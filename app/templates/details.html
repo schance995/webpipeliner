@@ -12,13 +12,13 @@
     <form class="form form-horizontal" method="post" role="form" enctype="multipart/form-data" name="details_form" id="details_form"> {# to upload files #}
     {{ form.hidden_tag() }}
     {# only display form fields #}
-{#    {% for field in form if not (field.name in ["next_button", "csrf_token", "minCPM", "minSamples"]) %}#}
-    {% for field in form if not (field.name in ['next_button', 'csrf_token']) %}
+{#    {% for field in form if not (field.name in ["submit_button", "csrf_token"]) %}#}
+    {% for field in form if not (field.name in ['submit_button', 'csrf_token']) %}
         {{ wtf.form_field(field) }}
     {% endfor %}
     <label class="control-label">Next</label>
     <br>
-    <input class="btn btn-primary btn-block" id="next_button" name="next_button" type="submit" value="Next">
+    <input class="btn btn-primary btn-block" id="submit_button" name="submit_button" type="submit" value="Submit">
     <br>
     {{ wtf.form_errors(form, hiddens="only") }}
     </form>
