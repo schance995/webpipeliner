@@ -1,12 +1,11 @@
 from flask import render_template, flash, redirect, url_for, request, jsonify, session
 from werkzeug.urls import url_parse
-from werkzeug.utils import secure_filename
 from app import app
 from app.forms import LoginForm, BasicsForm, create_details_form
 import paramiko
 from app.user import User
 from app.families import getFamilies, getGenomes, getPipelines, FAMILIES_JSON
-from app.checks import read_data_dir, read_groups, read_contrasts, read_pairs, read_peaks, read_contrast_
+from app.checks import read_data_dir, read_file
 from json import dumps, loads
 
 user = User()
@@ -19,11 +18,10 @@ def not_found_error(error):
 def internal_error(error):
     return render_template('500.html', current_user=user), 500
 
-@app.route('/')
 @app.route('/basics', methods=['GET', 'POST'])
 def basics():
-#    if not user.auth: # check for login
-#        return redirect(url_for('login'))
+    # if not user.auth: # check for login
+    #     return redirect(url_for('login'))
     form = None
     # if the form was already completed then refills in some details
     if 'basics' in session:
@@ -34,37 +32,53 @@ def basics():
         form.genome.choices.append((saved_genome, saved_genome))
     else:
         form = BasicsForm()
-    # was everything filled in correctly?
     
     if form.validate_on_submit():
-        tmp_data = form.data # copy data as we don't need to store csrf I believe
-        # remove unneeded keys
-        #del tmp_data['csrf_token']
-        #del tmp_data['next_button']
-        # store form data
-
-        datapath = 'rawdata' # tmp_data['dataPath'] # hardcoding a directory for test purposes
-        rawdata, paired_end, err = read_data_dir(datapath) # directory is relative to app folder
+        # copy data onto session
+        tmp_data = form.data 
+        datapath = tmp_data['dataPath']
+        rawdata, paired_end, err, specialfound = read_data_dir(datapath) # directory is relative to app folder
         
-        if err: # then directory is empty
+        if err: # then directory has 0 relevant files
             flash(err, 'error') 
             return redirect(url_for('basics'))
-        else: # report the number of files found
+        else: # report found files
             p_end = 'paired' if paired_end else 'single'
-            msg = 'Found {} files in data directory ({}-end)'.format(len(rawdata), p_end)
+            msg = 'Found {} files in {} ({}-end)'.format(len(rawdata), datapath, p_end)
             flash(msg, 'success')
+            for special in specialfound:
+                flash('Found {} in {}'.format(special, datapath), 'success')
             tmp_data['rawdata'] = rawdata
             tmp_data['paired_end'] = paired_end
 
         session['basics'] = tmp_data
         user.basics = True
-        user.details = False # so that they can't just submit right away
         return redirect(url_for('details'))
     
     return render_template('basics.html', title='Basics', current_user=user, form=form, families=FAMILIES_JSON)
 
 # this page has the particular details based on the pipeline, as well as the data/working directory selection
 # the user should fill out relevant details in the basics form first. Otherwise they will be redirected to fill out the forms.
+
+def check_form_field(form, field, datatocompare, err, requires=None):
+    if hasattr(form, field):
+        if form[field].data:
+            if (not requires) or form[requires].data:
+                file = form[field].data
+                data, errors = read_file(file, datatocompare)        
+                if errors:
+                    err[0] = True
+                    for e in errors:
+                        flash(e, 'error')
+                else:
+                    session['details'][field+'data'] = dumps(data)
+            else:
+                err[0] = True
+                flash('Must upload both {}.tab and {}.tab'.format(field, requires), 'error')
+                
+            return data
+    return None # not an error
+        
 
 @app.route('/details', methods=['GET', 'POST'])
 def details():
@@ -82,97 +96,41 @@ def details():
 
     if form.validate_on_submit(): # also checks for valid filenames
         tmp_data = form.data # a deep copy of the data is created
-        #del tmp_data['csrf_token']
-        #del tmp_data['next_button']
-        # do not store actual files in session
+
+        # do not store actual files in session, not jsonifiable
         for i in ['groups', 'contrasts', 'pairs', 'peakcall', 'contrast']:
             if i in tmp_data:
                 del tmp_data[i]
-        err = []
-        # merge tmp data with details?
-
+        
         session['details'] = tmp_data
         # load rawdata back into memory for validating inputs
         rawdata = session['basics']['rawdata']
-        # merge dictionaries with tmp_data having priority. user does not have to reupload groups or contrasts if they already did so
-        # not sure whether this is a good idea or not
  
         # groupsjson may already exist
-        groupsdata = None if 'groupsjson' not in session['details'] else loads(session['details']['groupsjson'])
-        # was a file uploaded?
-        if hasattr(form, 'groups') and form.groups.data:
-            f = form.groups.data
-            filename = secure_filename(f.filename) # to prevent cd ../ attacks, and gets the end filename
-            # file must be converted from bytes to string
-            groupsdata, err = read_groups(f.read().decode('utf-8').split('\n'), rawdata)
-            if err:
-                for e in err:
-                    flash(e, 'error')
-                #form.groups.errors.extend(err)
-                #return redirect(url_for('details'))
-            else:
-                session['details']['groupsjson'] = dumps(groupsdata) # add the data for access later
+        # groupsdata = None
+        # if 'groupsjson' in session['details']: groupsdata = loads(session['details']['groupsjson'])
 
-        if hasattr(form, 'contrasts') and form.contrasts.data:
-            if groupsdata:
-                f = form.contrasts.data
-                contrastsdata, err = read_contrasts(f.read().decode('utf-8').split('\n'), groupsdata['rgroups'])
-                if err:
-                    for e in err:
-                        flash(e, 'error')
-                    #form.contrasts.errors.extend(err)
-                    #return redirect(url_for('details'))
-                    #1 / 0
-                else:
-                    session['details']['contrastsjson'] = dumps(contrastsdata)
-            else:
-                flash('Must also upload groups.tab in order to define contrasts.tab', 'error')
-                #form.groups.errors.append(err)
-                #return redirect(url_for('details'))
-
-        #checking other forms. tbd
-        if hasattr(form, 'peakcall') and form.peakcall.data:
-            f = form.peakcall.data
-            peaksdata, err = read_peaks(f.read().decode('utf-8').split('\n'), rawdata)
-            if err:
-                for e in err:
-                    flash(e, 'error')
-                #form.pairs.peakcall.extend(err)
-            else:
-                session['details']['peaksjson'] = dumps(peaksdata)
-
-        if hasattr(form, 'pairs') and form.pairs.data:
-            f = form.pairs.data
-            pairsdata, err = read_pairs(f.read().decode('utf-8').split('\n'), rawdata)
-            print(pairsdata, err)
-            if err:
-                for e in err:
-                    flash(e, 'error')
-                #form.pairs.errors.extend(err)
-            else:
-                session['details']['pairsjson'] = dumps(pairsdata)
-
-        if hasattr(form, 'contrast') and form.contrast.data:
-            if peaksdata:
-                f = form.contrast.data
-                groups_to_check = {row[-1] for row in peaksdata}
-                contrast_data, err = read_contrast_(f.read().decode('utf-8').split('\n'), groups_to_check)
-                if err:
-                    for e in err:
-                        flash(e, 'error')
-                    #form.pairs.contrast.extend(err)
-                else:
-                    session['details']['contrast_json'] = dumps(contrast_data)
-        else:
-            flash('Must also upload peakcall.tab to upload contrast.tab', 'error')
-            #form.groups.errors.append(err)
-            #return redirect(url_for('details'))
+        errlist = [False]
+        # errlist contains boolean describing if any errors occured when reading files
+        # pass this in with every check_form_field
+        
+        groupsdata = check_form_field(form, 'groups', rawdata, errlist)
+        if groupsdata:
+            groups = groupsdata['groups']
+            check_form_field(form, 'contrasts', groups, errlist, requires='groups')
             
-        # at this point everything is read and ok
-        if err:
+        check_form_field(form, 'pairs', rawdata, errlist)
+        
+        peaksdata = check_form_field(form, 'peakcall', rawdata, errlist)
+        if peaksdata:
+            groups = {row[-1] for row in peaksdata} # get groups
+            check_form_field(form, 'contrast', groups, errlist, requires='peakcall')
+
+        # at this point everything is read
+        if errlist[0]:
             return redirect(url_for('details'))
         else:
-            user.details = True
+            user.basics = False
             flash('You have submitted your pipeline request, please check your email for the pipeline progress.', 'success')
             # alert the user
             return redirect(url_for('basics'))
@@ -194,8 +152,6 @@ def login():
         user.name = 'login disabled'
         user.auth = True
         user.basics = False
-        user.details = False
-        # session['formdata'] = {}
         flash('Logged in. Form progress cleared')
         return redirect(url_for('basics'))
 
@@ -206,9 +162,9 @@ def logout():
     if user.auth:
         user.auth = False
         user.basics = False
-        user.details = False
     return redirect(url_for('basics'))
 
+@app.route('/')
 @app.route('/about')
 def about():
     return render_template('about.html', current_user=user)

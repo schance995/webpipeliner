@@ -53,18 +53,20 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="{{ url_for('basics') }}">WebPipeliner</a>
+      <a class="navbar-brand" href="{{ url_for('about') }}">WebPipeliner</a>
     </div>
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
+        <li><a href="{{ url_for('about') }}">About</a></li>
         <li><a href="{{ url_for('basics') }}">Basics</a></li>
         <li><a href="{{ url_for('details') }}">Details</a></li>
+        {#
         {% if current_user and current_user.auth %}
         <li><a href="{{ url_for('logout') }}">Logout</a></li>
         {% else %}
         <li><a href="{{ url_for('login') }}">Login</a></li>
         {% endif %}
-        <li><a href="{{ url_for('about') }}">About</a></li>
+        #}
       </ul>
     </div>
   </div>

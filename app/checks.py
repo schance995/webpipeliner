@@ -1,6 +1,7 @@
 from re import match
 from os import walk
 from numbers import Number
+from werkzeug.utils import secure_filename
 
 # json dumps happens in routes
 def valid_filename(filename):
@@ -28,38 +29,39 @@ def valid_filename(filename):
         return (err == '', err)
 
 def read_data_dir(path):
-        # get only all (base) filenames to simulate the data directory
+    
+    err = ''
+    rawdata = {}
+    paired_end = False
+    count = 0
+    rgx = '^(.*)\.R([12])\.fastq\.gz$'
+    specialfiles = ['contrasts.tab', 'contrast.tab', 'groups.tab', 'pairs.tab', 'peakcall.tab']
+    specialfound = []
+    
+    # get only all (base) filenames to simulate the data directory
+    # be sure to set limits on .. if needed
+    try:
         (_, _, filenames) = next(walk(path))
-        err = ''
-        rawdata = {}
-        paired_end = False
-        if filenames: # empty
-            rgx = '^(.*)\.R([12])\.fastq\.gz$'
-            for f in filenames:
-                valid, e = valid_filename(f)
-                if valid: # invalid filename
+        for f in filenames:
+            if f in specialfiles: specialfound.append(f)
+            else:
+                valid, _ = valid_filename(f)
+                if valid:
+                    count += 1
                     m = match(rgx, f)
-                    # print(m[1], m[2])
-                    # store filenames as { name w/o extension: 1 or 2
-                    # m[1] matches sample name
-                    # m[2] matches 1 or 2
-                    if m[1] in rawdata:
-                        rawdata[m[1]].append(m[2])
-                    else:
-                        rawdata[m[1]] = [m[2]]
-                    if m[2] == '2':
-                        paired_end = True
-                # else:
-                #     err = e
-                #     break
-            pass # to signify end of foor loop
-        else:
-            err = 'The selected directory {} is empty.'.format(path)
-        if err:
-            return (None, None, err)
-        else:
-            return (rawdata, paired_end, err) # a tuple
-        # element-wise addition
+                    # m[1] = sample name, m[2] = 1 or 2
+                    if m[1] in rawdata: rawdata[m[1]].append(m[2])
+                    else: rawdata[m[1]] = [m[2]]
+
+                    if m[2] == '2': paired_end = True
+
+        if not count: # 0 files found
+            err = 'The selected directory "{}" has no relevant fastq files.'.format(path)
+    except StopIteration: # dir doesn't exist
+        err = 'The selected directory "{}" does not exist.'.format(path)
+
+    if err: return (None, None, err, None)
+    else: return (rawdata, paired_end, err, specialfound)
 
 '''
 if file is uploaded lines can be read first then sent to the function:
@@ -75,13 +77,12 @@ def read_groups(lines, inputdata):
     samples = {} # dictionaries preserve insertion order
     labels = []
     line_num = 0
-    groups = {"rsamps":None, "rgroups":None, "rlabels":None} # default
+    groups = {'samples':None, 'groups':None, 'labels':None} # default
     err = []
 
     for line in lines:
         line_num += 1
         parts = [p for p in line.strip().split('\t') if p]
-        print(parts)
         if len(parts): # ignore empty lines
             if len(parts) > 3:
                 err.append('Groups.tab, line {}: has too many columns, should have exactly 3 columns'.format(line_num))
@@ -109,8 +110,8 @@ def read_groups(lines, inputdata):
     if err: # == ''
         return (None, err)
     else:
-        groups['rsamps'] = list(samples.keys())
-        groups['rgroups'], groups['rlabels'] = list(zip(*samples.values())) # may be multiple groups
+        groups['samples'] = list(samples.keys())
+        groups['groups'], groups['labels'] = list(zip(*samples.values())) # may be multiple groups
 #        groups['rlabels']=labels
         return (groups, err)
         # does this dictionary be named exactly this way?
@@ -157,9 +158,8 @@ def read_contrasts(lines, samples):
         else:
             s = parts[0] if parts[0] not in samples else parts[1]
             err.append('Contrasts.tab, line {}: the sample {} doesn\'t exist in groups.tab'.format(line_num, s))
-            # break
-    #print(contrasts, err)
-    return (None, err) if err else (contrasts, err)
+
+    return (contrasts, err)
 
 # each pair is unique, and the samples exist in the raw data directory. Ignore duplicate lines
 def read_pairs(lines, samples):
@@ -188,10 +188,10 @@ def read_pairs(lines, samples):
             s = parts[0] if parts[0] not in samples else parts[1]
             err.append('Pairs.tab, line {}: the sample name {} doesn\'t appear in your data directory'.format(line_num, s))
     
-    return (None, err) if err else (pairs, err)
+    return (pairs, err)
 
 # reading peakcall.tab
-def read_peaks(lines, samples):
+def read_peakcall(lines, samples):
     err = []
     peaks = []
     line_num = 0
@@ -212,36 +212,62 @@ def read_peaks(lines, samples):
                 s = parts[0] if parts[0] not in samples else parts[1]
                 err.append('Peakcall.tab, line {}: the sample name {} doesn\'t appear in your data directory'.format(line_num, s))
 
-    return (None, err) if err else (peaks, err)
+    return (peaks, err)
 
 # reading contrast.tab
-def read_contrast_(lines, samples):
+def read_contrast(lines, samples):
     err = []
-    contrast_ = []
+    contrast = []
     line_num = 0
 
     for line in lines:
         line_num += 1
         parts = [p for p in line.strip().split('\t') if p]
-        if parts in contrast_: # skip duplicates
+        
+        if parts in contrast: # skip duplicates
             continue
+            
         if not len(parts): # skip blank lines
             continue
+            
         if len(parts) != 2:
             err.append('Contrast.tab, line {}: needs 2 entries exactly').format(line_num)
         else:
             if parts[0] in samples and parts[1] in samples:
-                contrast_.append(parts)
+                contrast.append(parts)
             else:
                 s = parts[0] if parts[0] not in samples else parts[1]
                 err.append('Contrast.tab, line {}: the sample {} doesn\'t exist in peakcall.tab'.format(line_num, s))
 
-    return (None, err) if err else (contrast_, err)
+    return (contrast, err)
 
-
+def read_file(file, datatocompare):
+    # file must be converted from bytes to string
+    name = secure_filename(file.filename) # strips .. and gets end filename
+    lines = file.read().decode('utf-8').split('\n')
+    func = None
+    if name == 'contrast.tab':
+        func = read_contrast
+    elif name == 'contrasts.tab':
+        func = read_contrasts
+    elif name == 'pairs.tab':
+        func = read_pairs
+    elif name == 'peakcall.tab':
+        func = read_peakcall
+    elif name == 'groups.tab':
+        func = read_groups
+    else:
+        raise ValueError('No read function for field '+name)
+    
+    res, err = func(lines, datatocompare)
+    if err:
+        return (None, err)
+    else:
+        return (res, err)
+        
+    
 # TESTS
 if __name__ == '__main__':
-    # are the first 2 valid?
     good_filenames = [
         '/data/CCBR_Pipeliner/testdata/rnaseq/expression_demo/Cntrl_S62.R1.fastq.gz',
         '/data/CCBR_Pipeliner/testdata/rnaseq/expression_demo/Cntrl_S62.R2.fastq.gz',
