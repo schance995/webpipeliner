@@ -1,11 +1,11 @@
 from flask import render_template, flash, redirect, url_for, request, jsonify, session
 from werkzeug.urls import url_parse
-from app import app
-from app.forms import LoginForm, BasicsForm, create_details_form
+from project import app
+from project.forms import LoginForm, BasicsForm, create_details_form
 import paramiko
-from app.user import User
-from app.families import getFamilies, getGenomes, getPipelines, FAMILIES_JSON
-from app.checks import read_data_dir, read_file
+from project.user import User
+from project.families import getFamilies, getGenomes, getPipelines, FAMILIES_JSON
+from project.checks import read_data_dir, read_file
 from json import dumps, loads
 
 user = User()

@@ -3,7 +3,7 @@ from flask_wtf.file import FileField
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, FloatField, IntegerField, Field
 from wtforms.validators import DataRequired, Regexp, Optional, NoneOf, Length, AnyOf, ValidationError
 from wtforms.widgets import TextInput
-from app.families import getFamilies, getPipelines, getGenomes
+from project.families import getFamilies, getPipelines, getGenomes
 from werkzeug.utils import secure_filename
 
 class LoginForm(FlaskForm):

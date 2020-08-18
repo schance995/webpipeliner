@@ -6,6 +6,6 @@
 # The finishing touches
 - Hide the logout page ☑
 - Make the about page the landing page, and add a button to access the form. ☑ (used a link instead)
-- Report special .tab files found in dir
-- Clean up and modularize some more code
+- Report special .tab files found in dir ☑
+- Clean up and modularize some more code ☑
 - Add doc strings
