@@ -10,16 +10,22 @@ from json import dumps, loads
 
 user = User()
 
+
 @app.errorhandler(404)
 def not_found_error(error):
     return render_template('404.html', current_user=user), 404
+
 
 @app.errorhandler(500)
 def internal_error(error):
     return render_template('500.html', current_user=user), 500
 
+
 @app.route('/basics', methods=['GET', 'POST'])
 def basics():
+    '''
+    Webpage for filling out basic information about the pipeline request
+    '''
     # if not user.auth: # check for login
     #     return redirect(url_for('login'))
     form = None
@@ -32,7 +38,7 @@ def basics():
         form.genome.choices.append((saved_genome, saved_genome))
     else:
         form = BasicsForm()
-    
+
     if form.validate_on_submit():
         # copy data onto session
         tmp_data = form.data 
@@ -54,13 +60,14 @@ def basics():
         session['basics'] = tmp_data
         user.basics = True
         return redirect(url_for('details'))
-    
+
     return render_template('basics.html', title='Basics', current_user=user, form=form, families=FAMILIES_JSON)
 
-# this page has the particular details based on the pipeline, as well as the data/working directory selection
-# the user should fill out relevant details in the basics form first. Otherwise they will be redirected to fill out the forms.
 
 def check_form_field(form, field, datatocompare, err, requires=None):
+    '''
+    Checks a file field for validity, and returns its contents in list or dict format if valid. Else returns None.
+    '''
     if hasattr(form, field):
         if form[field].data:
             if (not requires) or form[requires].data:
@@ -78,10 +85,15 @@ def check_form_field(form, field, datatocompare, err, requires=None):
                 
             return data
     return None # not an error
-        
+
 
 @app.route('/details', methods=['GET', 'POST'])
 def details():
+    '''
+    this page has the particular details based on the pipeline, as well as the data/working directory selection
+    the user should fill out relevant details in the basics form first. Otherwise they will be redirected to fill out the forms.
+    '''
+
 #    if not user.auth: # check for login
 #        return redirect(url_for('login'))
     if not user.basics: # basics form must be completed first
@@ -141,6 +153,7 @@ def details():
     # flash("Family = " + family + " and Pipeline = " + pipeline + " and Genome = " + genome, 'success')
     return render_template('details.html', title='Details', current_user=user, form=form, header='{}+{}+{}'.format(family, pipeline, genome))
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 #    if user.auth:
@@ -155,6 +168,7 @@ def login():
         flash('Logged in. Form progress cleared')
         return redirect(url_for('basics'))
 
+
 @app.route('/logout')
 def logout():
     session.clear()
@@ -163,6 +177,7 @@ def logout():
         user.auth = False
         user.basics = False
     return redirect(url_for('basics'))
+
 
 @app.route('/')
 @app.route('/about')

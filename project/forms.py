@@ -26,7 +26,7 @@ class BasicsForm(FlaskForm):
         choices=family_choices,
         default='Select a family',
         validators=[DataRequired(), NoneOf(['Select a family'], message='Must select a family')])
-                                 
+
     # dynamic fields based on value of family: choices are empty so we can initialize them later.
     # validate_choice is False because other inputs will by dynamically added via javascript. But the AnyOf validator will still run,
     # ensuring that the default option is not selectable. AnyOf is used to prevent malicious form inputs.
