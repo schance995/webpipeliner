@@ -97,14 +97,13 @@ class DetailsForm(FlaskForm):
     email = EmailField('Email',
                         description='Must use @nih.gov email address',
                         validators=[DataRequired(),
-                        Regexp('^\w*@nih\.gov$',
-                               Length(max=500)],
-                               message='Not an @nih.gov email address'))
+                                    Regexp('^\w*@nih\.gov$', message='Not an @nih.gov email address'),
+                                    Length(max=500)])
 
     flowCellId = StringField('Flow Cell ID',
                              description='FlowCellID, Labname, date or short project name',
                              validators=[Optional(), Length(max=500)])
-    
+
     submit_button = SubmitField('Submit Pipeline Request')
 
 def skip(*args, **kwargs):
