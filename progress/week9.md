@@ -3,7 +3,7 @@
 - made contrast.tab rely on peakcall.tab for group names
 - updated about page
 
-# The finishing touches
+# Todo
 - Hide the logout page ☑
 - Make the about page the landing page, and add a button to access the form. ☑ (used a link instead)
 - Report special .tab files found in dir ☑
