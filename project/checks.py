@@ -1,6 +1,5 @@
 from re import match
 from os import walk
-from numbers import Number
 from werkzeug.utils import secure_filename
 
 
