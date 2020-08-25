@@ -1,6 +1,5 @@
 from re import match
 from os import walk
-from numbers import Number
 from werkzeug.utils import secure_filename
 
 
@@ -90,8 +89,6 @@ def read_data_dir(path):
                 if valid:
                     count += 1
                     m = match(rgx, f)
-                    print(f)
-                    print(m)
                     # m[1] is sample name, m[2] is 1 or 2
                     if m[1] in rawdata:
                         rawdata[m[1]].append(m[2])

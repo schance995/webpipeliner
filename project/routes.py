@@ -1,12 +1,10 @@
-from flask import render_template, flash, redirect, url_for, request, jsonify, session
-from werkzeug.urls import url_parse
+from flask import flash, redirect, render_template, session, url_for
 from project import app
-from project.forms import LoginForm, BasicsForm, create_details_form
-import paramiko
+from project.forms import BasicsForm, create_details_form
 from project.user import User
-from project.families import getFamilies, getGenomes, getPipelines, FAMILIES_JSON
+from project.families import FAMILIES_JSON
 from project.checks import read_data_dir, read_file
-from json import dumps, loads
+from json import dumps
 
 
 user = User()
@@ -136,7 +134,6 @@ def details():
             flash('You have submitted your pipeline request, please check your email for the pipeline progress.', 'success')
             # alert the user
             return redirect(url_for('basics'))
-        pass
     # if form.validate on submit ...
     elif 'details' in session: # what does this do again? I think it preserves prior inputs
         form.process(data=session['details'])

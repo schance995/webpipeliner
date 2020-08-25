@@ -1,8 +1,5 @@
 from project.custom import NamedFileField
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, FloatField, IntegerField, Field
-from wtforms.fields.html5 import EmailField
-from wtforms.validators import DataRequired, Regexp, Optional, NoneOf, Length, AnyOf, ValidationError
-from wtforms.widgets import TextInput
+from wtforms import BooleanField
 
 def add_fields_RNA_DEA(form, genome):
     setattr(form, 'reportDiffExpGenes', BooleanField('Report differentially expressed genes'))

@@ -1,11 +1,8 @@
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, FloatField, IntegerField, Field
+from wtforms import PasswordField, SelectField, StringField, SubmitField
 from wtforms.fields.html5 import EmailField
-from wtforms.validators import DataRequired, Regexp, Optional, NoneOf, Length, AnyOf, ValidationError
-from wtforms.widgets import TextInput
+from wtforms.validators import AnyOf, DataRequired, Length, NoneOf, Optional, Regexp
 from project.families import getFamilies, getPipelines, getGenomes
-from werkzeug.utils import secure_filename
 from project.scrnaseq import get_scrnaseq_fields
 from project.rnaseq import get_rnaseq_fields
 from project.mirseq import get_mirseq_fields
@@ -131,8 +128,6 @@ for f in getFamilies():
     for p in getPipelines(f):
         if p not in formFunctions[f]:
             formFunctions[f][p] = skip
-
-print(formFunctions)
 
 # dynamic forms are created here by updating an internal subclass's attributes
 def create_details_form(family, pipeline, genome):
