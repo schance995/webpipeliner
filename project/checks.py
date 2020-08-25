@@ -16,9 +16,9 @@ def valid_filename(filename):
     '''
     rgx = r'^(.+)\.(R[12]\.fastq\.gz)$'
     # err = []
-    valid = True
+    valid = False
     m = match(rgx, filename)
-    if not m:
+    if m:
         valid = True
         # err.append('The filename {} should end with R1.fastq.gz or R2.fastq.gz'.format(filename))
         return valid
@@ -87,9 +87,11 @@ def read_data_dir(path):
                 specialfound.append(f)
             else:
                 valid = valid_filename(f)
-                if not valid:
+                if valid:
                     count += 1
                     m = match(rgx, f)
+                    print(f)
+                    print(m)
                     # m[1] is sample name, m[2] is 1 or 2
                     if m[1] in rawdata:
                         rawdata[m[1]].append(m[2])
@@ -293,10 +295,10 @@ def read_peakcall(lines, prefixes):
         if len(parts) != 3:
             err.append('Peakcall.tab, line {}: needs 3 entries exactly'.format(line_num))
         else:
-            if parts[0] in samples and parts[1] in samples:
+            if parts[0] in prefixes and parts[1] in prefixes:
                 peaks.append(parts)
             else:
-                s = parts[0] if parts[0] not in samples else parts[1]
+                s = parts[0] if parts[0] not in prefixes else parts[1]
                 err.append('Peakcall.tab, line {}: the sample name {} doesn\'t appear in your data directory'.format(line_num, s))
 
     return (peaks, err)
@@ -336,10 +338,10 @@ def read_contrast(lines, groups):
         if len(parts) != 2:
             err.append('Contrast.tab, line {}: needs 2 entries exactly').format(line_num)
         else:
-            if parts[0] in samples and parts[1] in samples:
+            if parts[0] in groups and parts[1] in groups:
                 contrast.append(parts)
             else:
-                s = parts[0] if parts[0] not in samples else parts[1]
+                s = parts[0] if parts[0] not in groups else parts[1]
                 err.append('Contrast.tab, line {}: the sample {} doesn\'t exist in peakcall.tab'.format(line_num, s))
 
     return (contrast, err)

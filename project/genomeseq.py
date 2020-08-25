@@ -1,8 +1,11 @@
 from project.custom import NamedFileField
-from wtforms import StringField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, FloatField, IntegerField, Field
+from wtforms.fields.html5 import EmailField
+from wtforms.validators import DataRequired, Regexp, Optional, NoneOf, Length, AnyOf, ValidationError
+from wtforms.widgets import TextInput
 
 
-def add_target_capture_kit(form):
+def add_target_capture_kit(form,genome ):
     tck = StringField('Target Capture Kit',
         description='By default, the path to the Agilent SureSelect V7 targets file is filled in here',
         validators=[DataRequired(), Length(max=500)],
@@ -11,7 +14,7 @@ def add_target_capture_kit(form):
 
 
 def add_fields_somatic_normal(form, genome):
-    add_target_capture_kit(form)
+    add_target_capture_kit(form, genome)
     setattr(form, 'pairs', NamedFileField(expect='pairs', required=True))
 
 

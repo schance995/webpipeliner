@@ -9,16 +9,16 @@ class NamedFileField(FileField):
     '''
     A file field that checks the name of its uploaded file against an expected title.
     '''
-    def __init__(self, label='', validators=None, expect='', required=False, **kwargs):
-        super(FileField, self).__init__(label, validators, **kwargs)
-        self.label = 'Upload ' + expect + '.tab'
+    def __init__(self, label='', validators=[], expect='', required=False, **kwargs):
+        label = 'Upload ' + expect + '.tab'
         if required:
-            self.validators.append(DataRequired())
-            self.label += ' (required)'
+            validators.append(DataRequired())
+            label += ' (required)'
         else:
-            self.validators.append(Optional())
-            self.label += ' (optional)'
-        self.validators.append(check_named_file_field(label+'.tab'))
+            validators.append(Optional())
+            label += ' (optional)'
+        super(FileField, self).__init__(label, validators, **kwargs)        
+
 
     def validate_filename(form, field):
         shouldbe_search = search(r' ([a-z]*\.tab)')
