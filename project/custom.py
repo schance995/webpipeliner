@@ -1,10 +1,16 @@
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, FloatField, IntegerField, Field
+from wtforms.fields.html5 import EmailField
+from wtforms.validators import DataRequired, Regexp, Optional, NoneOf, Length, AnyOf, ValidationError
+from wtforms.widgets import TextInput
+
+
 class NamedFileField(FileField):
     '''
     A file field that checks the name of its uploaded file against an expected title.
     '''
-    def __init__(self, label='', validators=None, required=False, **kwargs):
+    def __init__(self, label='', validators=None, expect='', required=False, **kwargs):
         super(FileField, self).__init__(label, validators, **kwargs)
-        self.label = 'Upload ' + label + '.tab'
+        self.label = 'Upload ' + expect + '.tab'
         if required:
             self.validators.append(DataRequired())
             self.label += ' (required)'
@@ -24,6 +30,7 @@ class NamedFileField(FileField):
             message = 'Filename must match {} exactly'.format(shouldbe)
             raise ValidationError(message)
 
+
 class FloatListField(Field):
     widget = TextInput()
     # reads default value from a literal float list and returns a comma-separated string
@@ -33,12 +40,14 @@ class FloatListField(Field):
         else:
             return ''
 
+
     # called at form submission but before validation
     def process_formdata(self, valuelist):
         if valuelist:
             self.data = [x.strip() for x in valuelist[0].split(',')]
         else:
             self.data = []
+
 
     # inline validator
     def validate_float_list(form, field):

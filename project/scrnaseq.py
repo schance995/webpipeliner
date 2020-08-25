@@ -1,11 +1,18 @@
+from custom import FloatListField, NamedFileField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, FloatField, IntegerField, Field
+from wtforms.fields.html5 import EmailField
+from wtforms.validators import DataRequired, Regexp, Optional, NoneOf, Length, AnyOf, ValidationError
+from wtforms.widgets import TextInput
+
+
 def create_clustering_resolution():
     return FloatListField('Clustering Resolution(s)',
-        default=['0.4','0.6','0.8','1.0','1.2'], # float array
-        validators=[DataRequired(), check_float_list])
+        default=['0.4','0.6','0.8','1.0','1.2'],
+        validators=[DataRequired()])
+
 
 # scRNAseq
-def add_fields_scrna_QC(**kwargs):
-    form, genome = kwargs.get('form'), kwargs.get('genome')
+def add_fields_scrna_QC(form, genome):
     alist = ['SLM (Smart Local Moving)', 'Louvain (Original)', 'Louvain (with Multilevel Refinement)']
     algorithms = SelectField('Clustering algorithm',
         choices=[(a, a) for a in alist])
@@ -19,11 +26,12 @@ def add_fields_scrna_QC(**kwargs):
         choices=[(a, a) for a in annot])
     setattr(form, 'annotationDatabase', annotations)
     setattr(form, 'citeseqIncluded', BooleanField('CITESeq Included'))
-    add_sample_info(**kwargs, options={'groups': False, 'contrasts': False})
+    setattr(form, 'groups', NamedFileField(expect='groups'))
+    setattr(form, 'groups', NamedFileField(expect='contrasts'))
+
 
 # form elements are displayed in the same order they are added in
-def add_fields_scrna_DE(**kwargs):
-    form = kwargs.get('form')
+def add_fields_scrna_DE(form, genome):
     setattr(form, 'prepatch', BooleanField('Use pre-batch/merged correction'))
     setattr(form, 'postpatch', BooleanField('Use post-batch/integrated correction'))
     setattr(form, 'clusteringResolution', create_clustering_resolution())
@@ -33,4 +41,12 @@ def add_fields_scrna_DE(**kwargs):
     setattr(form, 'statisticalTest', stats)
     setattr(form, 'minFraction', FloatField('Minimum fraction of cells expressing DE genes', default=0.1, validators=[DataRequired()]))
     setattr(form, 'minFoldChange', FloatField('Minimum fold change to report DE genes', default=0.25, validators=[DataRequired()]))
-    add_sample_info(**kwargs, options={'groups': False, 'contrasts': False})
+    setattr(form, 'groups', NamedFileField(expect='groups'))
+    setattr(form, 'groups', NamedFileField(expect='contrasts'))
+
+
+def get_scrnaseq_fields():
+    res = {}        
+    res['Differential Expression Analysis'] = add_fields_RNA_DEA
+    res['Quality Control Analysis'] = add_fields_RNA_QCA
+    return res

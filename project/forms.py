@@ -6,7 +6,12 @@ from wtforms.validators import DataRequired, Regexp, Optional, NoneOf, Length, A
 from wtforms.widgets import TextInput
 from project.families import getFamilies, getPipelines, getGenomes
 from werkzeug.utils import secure_filename
-
+from scrnaseq import get_scrnaseq_fields
+from rnaseq import get_scrnaseq_fields
+from mirseq import get_mirseq_fields
+from genomeseq import get_genomeseq_fields
+from exomeseq import get_exomeseq_fields
+from chipseq import get_chipseq_fields
 
 class LoginForm(FlaskForm):
     '''
@@ -115,55 +120,17 @@ A formal way to do nothing. Used by the function dictionary to add additional fo
 
 # code to initialize the form functions
 formFunctions = {}
+formFunctions['ExomeSeq'] = get_exomeseq_fields()
+formFunctions['ChIPseq'] = get_chipseq_fields()
+formFunctions['GenomeSeq'] = get_genomeseq_fields()
+formFunctions['mir-Seq'] = get_mirseq_fields()
+formFunctions['RNASeq'] = get_rnaseq_fields()
+formFunctions['scRNAseq'] = get_scrnaseq_fields()
+
 for f in getFamilies():
-    formFunctions[f] = {p: skip for p in getPipelines(f)}
-    # dictionary comprehension: each dictionary has a dictionary inside. family -> pipeline
-
-
-
-# all exsomeseq pipelines require this
-def add_target_capture_kit(*args, **kwargs):
-    form = kwargs.get('form')
-    tck = StringField('Target Capture Kit',
-        description='By default, the path to the Agilent SureSelect V7 targets file is filled in here',
-        validators=[DataRequired(), Length(max=500)],
-        default='/data/CCBR_Pipeliner/db/PipeDB/lib/Agilent_SSv7_allExons_hg19.bed')
-    setattr(form, 'targetCaptureKit', tck)
-
-def add_fields_somatic_normal(**kwargs):
-    add_target_capture_kit(**kwargs)
-    add_sample_info(options={'pairs': True}, **kwargs,) # required!
-
-for f in ['ExomeSeq', 'GenomeSeq']: # share the same pipelines
-    formFunctions[f]['Initial QC'] = add_target_capture_kit
-    formFunctions[f]['Germline'] = add_target_capture_kit
-    formFunctions[f]['Somatic Tumor-Only'] = add_target_capture_kit
-    formFunctions[f]['Somatic Tumor-Normal'] = add_fields_somatic_normal
-
-# mirseq
-def add_fields_mir_CAP(**kwargs):
-    add_sample_info(options={'groups': False, 'contrasts': False}, **kwargs)
-
-def add_fields_mir_v2(**kwargs):
-    form = kwargs.get('form')
-    setattr(form, 'identifyNovelmiRNAs', BooleanField('Identify Novel miRNAs'))
-    add_fields_mir_CAP(**kwargs)
-
-formFunctions['mir-Seq']['CAPmirseq-plus'] = add_fields_mir_CAP
-formFunctions['mir-Seq']['miRSeq_v2'] = add_fields_mir_v2
-
-# chipseq
-def add_fields_chip_QC(**kwargs):
-    add_sample_info(options={'peaks': False}, **kwargs)
-
-def add_fields_chip_seq(**kwargs):
-    add_sample_info(options={'peaks': True, 'contrast': True}, **kwargs) # required!
-
-formFunctions['ChIPseq']['InitialChIPseqQC'] = add_fields_chip_QC
-formFunctions['ChIPseq']['ChIPseq'] = add_fields_chip_seq
-
-formFunctions['scRNAseq']['Initial QC'] = add_fields_scrna_QC
-formFunctions['scRNAseq']['Differential Expression'] = add_fields_scrna_DE
+    for p in getPipelines(f):
+        if p not in formFunctions[f]:
+            formFunctions[f] = skip()
 
 # dynamic forms are created here by updating an internal subclass's attributes
 def create_details_form(family, pipeline, genome):
@@ -174,6 +141,6 @@ def create_details_form(family, pipeline, genome):
     try:
         formFunctions[family][pipeline](form=TemplateDetailsForm, genome=genome)
     except KeyError as e:
-        print(e)
+        raise KeyError('Did not find {} or {} in families or pipelines'.format(family, pipeline))
 
     return TemplateDetailsForm()
