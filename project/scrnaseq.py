@@ -1,4 +1,4 @@
-from custom import FloatListField, NamedFileField
+from project.custom import FloatListField, NamedFileField
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, FloatField, IntegerField, Field
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import DataRequired, Regexp, Optional, NoneOf, Length, AnyOf, ValidationError
@@ -47,6 +47,6 @@ def add_fields_scrna_DE(form, genome):
 
 def get_scrnaseq_fields():
     res = {}        
-    res['Differential Expression Analysis'] = add_fields_RNA_DEA
-    res['Quality Control Analysis'] = add_fields_RNA_QCA
+    res['Initial QC'] = add_fields_scrna_QC
+    res['Differential Expression'] = add_fields_scrna_DE
     return res

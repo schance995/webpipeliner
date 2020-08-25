@@ -6,12 +6,12 @@ from wtforms.validators import DataRequired, Regexp, Optional, NoneOf, Length, A
 from wtforms.widgets import TextInput
 from project.families import getFamilies, getPipelines, getGenomes
 from werkzeug.utils import secure_filename
-from scrnaseq import get_scrnaseq_fields
-from rnaseq import get_scrnaseq_fields
-from mirseq import get_mirseq_fields
-from genomeseq import get_genomeseq_fields
-from exomeseq import get_exomeseq_fields
-from chipseq import get_chipseq_fields
+from project.scrnaseq import get_scrnaseq_fields
+from project.rnaseq import get_rnaseq_fields
+from project.mirseq import get_mirseq_fields
+from project.genomeseq import get_genomeseq_fields
+from project.exomeseq import get_exomeseq_fields
+from project.chipseq import get_chipseq_fields
 
 class LoginForm(FlaskForm):
     '''
@@ -102,9 +102,9 @@ class DetailsForm(FlaskForm):
     email = EmailField('Email',
                         description='Must use @nih.gov email address',
                         validators=[DataRequired(),
-                        Regexp('^\w*@nih\.gov$',
-                               Length(max=500)],
-                               message='Not an @nih.gov email address'))
+                                    Regexp('^\w*@nih\.gov$', message='Not an @nih.gov email address'),
+                                    Length(max=500)])
+                                    
 
     flowCellId = StringField('Flow Cell ID',
                              description='FlowCellID, Labname, date or short project name',
@@ -128,9 +128,10 @@ formFunctions['RNASeq'] = get_rnaseq_fields()
 formFunctions['scRNAseq'] = get_scrnaseq_fields()
 
 for f in getFamilies():
-    for p in getPipelines(f):
-        if p not in formFunctions[f]:
-            formFunctions[f] = skip()
+    if not formFunctions[f]:
+        formFunctions[f] = skip()
+
+print(formFunctions)
 
 # dynamic forms are created here by updating an internal subclass's attributes
 def create_details_form(family, pipeline, genome):

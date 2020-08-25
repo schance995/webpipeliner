@@ -1,4 +1,4 @@
-from custom import NamedFileField
+from project.custom import NamedFileField
 from wtforms import BooleanField
 
 

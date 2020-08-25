@@ -1,8 +1,8 @@
-from custom import NamedFileField
+from project.custom import NamedFileField
 
 
 def add_fields_chip_QC(form, genome):
-    setattr(form, 'pairs', NamedFileField(expect='peaks')
+    setattr(form, 'pairs', NamedFileField(expect='peaks'))
 
 
 def add_fields_chip_seq(form, genome):
