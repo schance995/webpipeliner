@@ -27,7 +27,7 @@ def add_fields_scrna_QC(form, genome):
     setattr(form, 'annotationDatabase', annotations)
     setattr(form, 'citeseqIncluded', BooleanField('CITESeq Included'))
     setattr(form, 'groups', NamedFileField(expect='groups'))
-    setattr(form, 'groups', NamedFileField(expect='contrasts'))
+    setattr(form, 'contrasts', NamedFileField(expect='contrasts'))
 
 
 # form elements are displayed in the same order they are added in
@@ -42,7 +42,7 @@ def add_fields_scrna_DE(form, genome):
     setattr(form, 'minFraction', FloatField('Minimum fraction of cells expressing DE genes', default=0.1, validators=[DataRequired()]))
     setattr(form, 'minFoldChange', FloatField('Minimum fold change to report DE genes', default=0.25, validators=[DataRequired()]))
     setattr(form, 'groups', NamedFileField(expect='groups'))
-    setattr(form, 'groups', NamedFileField(expect='contrasts'))
+    setattr(form, 'contrasts', NamedFileField(expect='contrasts'))
 
 
 def get_scrnaseq_fields():

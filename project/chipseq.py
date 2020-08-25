@@ -6,8 +6,8 @@ def add_fields_chip_QC(form, genome):
 
 
 def add_fields_chip_seq(form, genome):
-    setattr(form, 'peaks', NamedFileField(expect='peaks', required=True))
-    setattr(form, 'contrasts', NamedFileField(expect='contrasts', required=True))
+    setattr(form, 'peakcall', NamedFileField(expect='peakcall', required=True))
+    setattr(form, 'contrast', NamedFileField(expect='contrast', required=True))
 
 
 def get_chipseq_fields():

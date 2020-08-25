@@ -128,8 +128,9 @@ formFunctions['RNASeq'] = get_rnaseq_fields()
 formFunctions['scRNAseq'] = get_scrnaseq_fields()
 
 for f in getFamilies():
-    if not formFunctions[f]:
-        formFunctions[f] = skip()
+    for p in getPipelines(f):
+        if p not in formFunctions[f]:
+            formFunctions[f][p] = skip
 
 print(formFunctions)
 
