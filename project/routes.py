@@ -8,7 +8,9 @@ from project.families import getFamilies, getGenomes, getPipelines, FAMILIES_JSO
 from project.checks import read_data_dir, read_file
 from json import dumps, loads
 
+
 user = User()
+
 
 @app.errorhandler(404)
 def not_found_error(error):
@@ -93,7 +95,7 @@ def details():
     genome = session['basics']['genome']
     # dynamic form
     form = create_details_form(family, pipeline, genome)
-
+    
     if form.validate_on_submit(): # also checks for valid filenames
         tmp_data = form.data # a deep copy of the data is created
 
@@ -105,7 +107,7 @@ def details():
         session['details'] = tmp_data
         # load rawdata back into memory for validating inputs
         rawdata = session['basics']['rawdata']
- 
+
         # groupsjson may already exist
         # groupsdata = None
         # if 'groupsjson' in session['details']: groupsdata = loads(session['details']['groupsjson'])
@@ -118,9 +120,9 @@ def details():
         if groupsdata:
             groups = groupsdata['groups']
             check_form_field(form, 'contrasts', groups, errlist, requires='groups')
-            
+
         check_form_field(form, 'pairs', rawdata, errlist)
-        
+
         peaksdata = check_form_field(form, 'peakcall', rawdata, errlist)
         if peaksdata:
             groups = {row[-1] for row in peaksdata} # get groups
@@ -138,6 +140,7 @@ def details():
     # if form.validate on submit ...
     elif 'details' in session: # what does this do again? I think it preserves prior inputs
         form.process(data=session['details'])
+    
     # flash("Family = " + family + " and Pipeline = " + pipeline + " and Genome = " + genome, 'success')
     return render_template('details.html', title='Details', current_user=user, form=form, header='{}+{}+{}'.format(family, pipeline, genome))
 
