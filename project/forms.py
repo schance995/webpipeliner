@@ -1,5 +1,4 @@
 from flask_wtf import FlaskForm
-<<<<<<< HEAD
 from flask_wtf.file import FileField
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, FloatField, IntegerField, Field
 from wtforms.fields.html5 import EmailField
@@ -103,29 +102,21 @@ class DetailsForm(FlaskForm):
                         description='Must use @nih.gov email address',
                         validators=[DataRequired(),
                                     Regexp('^\w*@nih\.gov$', message='Not an @nih.gov email address'),
-                                    Length(max=500)])
-<<<<<<< HEAD
-=======
-                                    
->>>>>>> working
+
 
     flowCellId = StringField('Flow Cell ID',
                              description='FlowCellID, Labname, date or short project name',
                              validators=[Optional(), Length(max=500)])
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> working
     submit_button = SubmitField('Submit Pipeline Request')
 
 def skip(*args, **kwargs):
+    '''
+    A formal way to do nothing. Used by the function dictionary to add additional forms.
+    '''
     pass
-'''
-A formal way to do nothing. Used by the function dictionary to add additional forms.
-'''
 
-# code to initialize the form functions
+# code to initialize the form functions, each imported from their respective py file
 formFunctions = {}
 formFunctions['ExomeSeq'] = get_exomeseq_fields()
 formFunctions['ChIPseq'] = get_chipseq_fields()
@@ -134,6 +125,7 @@ formFunctions['mir-Seq'] = get_mirseq_fields()
 formFunctions['RNASeq'] = get_rnaseq_fields()
 formFunctions['scRNAseq'] = get_scrnaseq_fields()
 
+# any valid combinations without a py file automatically get skip (no action)
 for f in getFamilies():
     for p in getPipelines(f):
         if p not in formFunctions[f]:
@@ -141,6 +133,28 @@ for f in getFamilies():
 
 # dynamic forms are created here by updating an internal subclass's attributes
 def create_details_form(family, pipeline, genome):
+    '''
+    Returns a form with custom fields depending on the specified family, pipeline, and genome.
+    
+    Args:
+        family (str): The name must be an exact match.
+        pipeline (str): The name must be an exact match.
+        genome (str): The name must be an exact match. Not used by all pipelines but included for completeness.
+
+    Returns:
+        TemplateDetailsForm(form): The custom form with new fields added
+
+    To add a new combination of family/pipeline/genome:
+        1. Update families.py with the new family and pipeline.
+        2. Add formFunctions['pipeline'] = function_to_get_fields() by the formFunctions section.
+        3. If a new family was added: create a new py file for that family, and import it at the top of this file.
+        4. Inside the family's py file, add a new function to add fields to the form.
+               It should be similar to add_function(form, genome) where form and genome will be passed in by this function.
+               Use setattr to adjust the form and add new inputs. You can also define custom fields as needed.
+        5. Also inside the family's py file, add/update the function_to_get_fields() to map the pipeline name to the function
+               that was created in the previous step.
+               Return the dictionary with the mapping of pipeline names to adding functions.
+    '''
     class TemplateDetailsForm(DetailsForm):
         pass
 
