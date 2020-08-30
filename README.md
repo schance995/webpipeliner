@@ -18,7 +18,12 @@ To run the app:
 6. Have fun!
 7. Ctrl-C in terminal to quit (and `deactivate` if you used a virtual env)
 
+## Screenshots
+### About page
 ![The about page](/screenshots/about.png)
+### Basic information page
 ![The basics page](/screenshots/basics.png)
+### Specific details page
 ![The details page](/screenshots/details.png)
+### After submitting
 ![The about page after submitting](/screenshots/submit.png)
