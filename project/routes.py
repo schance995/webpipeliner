@@ -13,7 +13,8 @@ user = User()
 @app.route('/basics', methods=['GET', 'POST'])
 def basics():
     '''
-    Webpage for filling out basic information about the pipeline request
+    Webpage for filling out basic information about the pipeline request.
+    This form information is stored in the user session (['basics'])
     '''
     # if not user.auth: # check for login
     #     return redirect(url_for('login'))
@@ -84,8 +85,10 @@ def check_form_field(form, field, datatocompare, err, requires=None):
 @app.route('/details', methods=['GET', 'POST'])
 def details():
     '''
-    this page has the particular details based on the pipeline, as well as the data/working directory selection
-    the user should fill out relevant details in the basics form first. Otherwise they will be redirected to fill out the forms.
+    This page has the particular details based on the pipeline, as well as the data/working directory selection
+    The user should fill out relevant details in the basics form first. Otherwise they will be redirected to fill out the forms.
+    This form information is NOT stored in the user session (to avoid potential problems with file sizes).
+    Accessing form information should be done within the route while the form is still in memory.
     '''
 #    if not user.auth: # check for login
 #        return redirect(url_for('login'))
