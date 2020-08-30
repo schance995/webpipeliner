@@ -60,7 +60,7 @@ class NamedFileField(FileField):
             validators.insert(0, Optional())
 
         validators.append(validate_filename)
-        print(validators)
+
         super(FileField, self).__init__(labeltxt, validators, **kwargs)
 
 

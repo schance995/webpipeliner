@@ -378,6 +378,8 @@ def read_file(file, datatocompare):
         raise ValueError('No read function for field ' + name)
 
     res, err = func(lines, datatocompare)
+    print('read file')
+    print(res, err)
     if err:
         return (None, err)
     else:

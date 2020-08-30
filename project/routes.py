@@ -57,24 +57,28 @@ def check_form_field(form, field, datatocompare, err, requires=None):
     '''
     Checks a file field for validity, and returns its contents in list or dict format if valid. Else returns None.
     '''
-    if hasattr(form, field):
-        if form[field].data:
-            if (not requires) or form[requires].data:
-                file = form[field].data
-                data, errors = read_file(file, datatocompare)
-                
-                if errors:
-                    err[0] = True
-                    for e in errors:
-                        flash(e, 'error')
-                else:
-                    session['details'][field+'data'] = dumps(data)
-            else:
+    if field in form.data and form.data[field]:
+        if requires and not form.data[requires]:
+            err[0] = True
+            flash('Must upload both {}.tab and {}.tab'.format(field, requires), 'error')
+        else:
+            file = form[field].data
+            data, errors = read_file(file, datatocompare)
+            
+            if errors:
                 err[0] = True
-                flash('Must upload both {}.tab and {}.tab'.format(field, requires), 'error')
-                
+                for e in errors:
+                    flash(e, 'error')
+            else:
+                session['details'][field+'data'] = dumps(data)
+            print(field, err, requires)
+            print(data)
             return data
-    return None # not an error
+    else:
+        print('field not in form')
+    print(field, err, requires)
+    print('Returning None')
+    return None
 
 
 @app.route('/details', methods=['GET', 'POST'])
@@ -107,25 +111,24 @@ def details():
         # load rawdata back into memory for validating inputs
         rawdata = session['basics']['rawdata']
 
-        # groupsjson may already exist
-        # groupsdata = None
-        # if 'groupsjson' in session['details']: groupsdata = loads(session['details']['groupsjson'])
-
         errlist = [False]
         # errlist contains boolean describing if any errors occured when reading files
         # pass this in with every check_form_field
-        
+        # essentially a mutable reference to a boolean
+
         groupsdata = check_form_field(form, 'groups', rawdata, errlist)
+        groups = None  # specify a None type before validating fields that depend on other fields
         if groupsdata:
             groups = groupsdata['groups']
-            check_form_field(form, 'contrasts', groups, errlist, requires='groups')
+        check_form_field(form, 'contrasts', groups, errlist, requires='groups')
 
         check_form_field(form, 'pairs', rawdata, errlist)
 
         peaksdata = check_form_field(form, 'peakcall', rawdata, errlist)
+        groups = None
         if peaksdata:
             groups = {row[-1] for row in peaksdata} # get groups
-            check_form_field(form, 'contrast', groups, errlist, requires='peakcall')
+        check_form_field(form, 'contrast', groups, errlist, requires='peakcall')
 
         # at this point everything is read
         if errlist[0]:
@@ -134,7 +137,7 @@ def details():
             user.basics = False
             flash('You have submitted your pipeline request, please check your email for the pipeline progress.', 'success')
             # alert the user
-            return redirect(url_for('basics'))
+            return redirect(url_for('about'))
     # if form.validate on submit ...
     elif 'details' in session: # what does this do again? I think it preserves prior inputs
         form.process(data=session['details'])
