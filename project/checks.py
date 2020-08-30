@@ -361,9 +361,8 @@ def read_file(file, datatocompare):
     Raises:
         ValueError: if the filename is not an exact match of special input files.
     '''
-    # file must be converted from bytes to string
     name = secure_filename(file.filename)  # strips .. and gets end filename
-    lines = file.read().decode('utf-8').split('\n')
+    lines = file.read().decode('utf-8').split('\n')  # file must be converted from bytes to string
     func = None
     if name == 'contrast.tab':
         func = read_contrast

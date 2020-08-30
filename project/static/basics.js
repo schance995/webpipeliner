@@ -1,4 +1,4 @@
-// stored in a meta tag
+// pipelines and families are stored in a meta tag
 
 $(document).ready(function() {
 var data = JSON.parse($("#data").attr("data"));

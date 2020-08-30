@@ -131,7 +131,7 @@ for f in getFamilies():
         if p not in formFunctions[f]:
             formFunctions[f][p] = skip
 
-# dynamic forms are created here by updating an internal subclass's attributes
+
 def create_details_form(family, pipeline, genome):
     '''
     Returns a form with custom fields depending on the specified family, pipeline, and genome.
@@ -144,6 +144,8 @@ def create_details_form(family, pipeline, genome):
     Returns:
         TemplateDetailsForm(form): The custom form with new fields added
 
+    Note: dynamic forms are created here by modifying an internal subclass's attributes (in this case a DetailsForm)
+
     To add a new combination of family/pipeline/genome:
         1. Update families.py with the new family and pipeline.
         2. Add formFunctions['pipeline'] = function_to_get_fields() by the formFunctions section.
@@ -154,11 +156,12 @@ def create_details_form(family, pipeline, genome):
         5. Also inside the family's py file, add/update the function_to_get_fields() to map the pipeline name to the function
                that was created in the previous step.
                Return the dictionary with the mapping of pipeline names to adding functions.
+        Then by calling the proper family/pipeline the correct fields should be generated.
     '''
     class TemplateDetailsForm(DetailsForm):
         pass
 
-# call the correct function from the dictionary and raise an error if something's not found.
+    # call the correct function from the dictionary and raise an error if something's not found.
     try:
         formFunctions[family][pipeline](form=TemplateDetailsForm, genome=genome)
     except KeyError as e:

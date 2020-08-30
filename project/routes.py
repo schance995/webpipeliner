@@ -10,16 +10,6 @@ from json import dumps
 user = User()
 
 
-@app.errorhandler(404)
-def not_found_error(error):
-    return render_template('404.html', current_user=user), 404
-
-
-@app.errorhandler(500)
-def internal_error(error):
-    return render_template('500.html', current_user=user), 500
-
-
 @app.route('/basics', methods=['GET', 'POST'])
 def basics():
     '''

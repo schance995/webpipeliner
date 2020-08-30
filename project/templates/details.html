@@ -12,7 +12,6 @@
     <form class="form form-horizontal" method="post" role="form" enctype="multipart/form-data" name="details_form" id="details_form"> {# to upload files #}
     {{ form.hidden_tag() }}
     {# only display form fields #}
-{#    {% for field in form if not (field.name in ["submit_button", "csrf_token"]) %}#}
     {% for field in form if not (field.name in ['submit_button', 'csrf_token']) %}
         {{ wtf.form_field(field) }}
     {% endfor %}
@@ -29,4 +28,3 @@
     {{ super() }}
     <script src="{{ url_for('static', filename='details.js') }}"></script>
 {% endblock %}
-

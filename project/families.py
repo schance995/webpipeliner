@@ -32,11 +32,25 @@ FAMILIES_JSON = dumps(d)
 
 
 def getFamilies():
+    '''
+    Returns a list of families
+    '''
     return list(FAMILIES.keys())
 
 
-# use no argument or "all" to get all pipelines or genomes
 def getPipelines(fam="all"):
+    '''
+    Returns a list of pipelines based on the fam argument.
+
+    Arg:
+        fam (str): the family to obtain, defaults to "all"
+
+    Returns:
+        A set of all pipelines belonging to the specified family, or all of them if fam == all
+
+    Raises:
+        ValueError: if fam is not a valid family
+    '''
     if fam == "all":
         res = set()
         for f in list(FAMILIES.keys()):
@@ -49,6 +63,18 @@ def getPipelines(fam="all"):
 
 
 def getGenomes(fam="all"):
+    '''
+    Returns a list of genome based on the fam argument.
+
+    Arg:
+        fam (str): the family to obtain, defaults to "all"
+
+    Returns:
+        A set of all genomes belonging to the specified family, or all of them if fam == all
+
+    Raises:
+        ValueError: if fam is not a valid family
+    '''
     if fam == "all":
         res = set()
         for f in list(FAMILIES.keys()):

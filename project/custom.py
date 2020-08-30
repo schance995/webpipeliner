@@ -35,6 +35,10 @@ class NamedFileField(FileField):
             expect (str): the title of the file to expect. ".tab" extension is not required if "label" is not provided.
             required (bool): whether this field is required or not.
                 If label is not provided then additional text indicating the requirement will be added here in the label.
+
+        Note:
+            Flask WTForm docs suggest putting super().__init__ at the beginning of the function.
+            But since there are some built-in modifications to label text and validators, super is put at the end instead.
         '''
         if label:
             self.expect = expect
@@ -52,37 +56,53 @@ class NamedFileField(FileField):
 
         if required:
             validators.insert(0, InputRequired())
-            #validators.append(validate_filename) # add datarequired or dataoptional at the beginning of the list
         else:
-            validators.insert(0, Optional())#, validate_filename]
+            validators.insert(0, Optional())
 
         validators.append(validate_filename)
-        #self.required = required
         print(validators)
         super(FileField, self).__init__(labeltxt, validators, **kwargs)
 
 
 
 class FloatListField(Field):
+    '''
+    A custom field to represent a list of floating point numbers.
+
+    Attributes:
+        widget: a text input box that is used to enter the list of numbers.
+    '''
     widget = TextInput()
-    # reads default value from a literal float list and returns a comma-separated string
+
+
     def _value(self):
+        '''
+        Reads default value from a literal float list and returns a comma-separated string
+        '''
         if self.data:
             return ', '.join(self.data)
         else:
             return ''
 
 
-    # called at form submission but before validation
     def process_formdata(self, valuelist):
+        '''
+        Processes the entered data and saves it to self.
+        Called at form submission but before validation.
+        '''
         if valuelist:
             self.data = [x.strip() for x in valuelist[0].split(',')]
         else:
             self.data = []
 
 
-    # inline validator
     def validate_float_list(form, field):
+        '''
+        An inline validator to check that the entered data is a float list.
+
+        Raises:
+            ValidationError: if the entered data is not a float list.
+        '''
         for x in field.data:
             try:
                 float(x)

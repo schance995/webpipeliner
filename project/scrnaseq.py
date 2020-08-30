@@ -11,6 +11,9 @@ def create_clustering_resolution():
 
 # scRNAseq
 def add_fields_scrna_QC(form, genome):
+    '''
+    Adds a lot of fields for initial QC.
+    '''
     alist = ['SLM (Smart Local Moving)', 'Louvain (Original)', 'Louvain (with Multilevel Refinement)']
     algorithms = SelectField('Clustering algorithm',
         choices=[(a, a) for a in alist])
@@ -30,6 +33,9 @@ def add_fields_scrna_QC(form, genome):
 
 # form elements are displayed in the same order they are added in
 def add_fields_scrna_DE(form, genome):
+    '''
+    Adds a lot of fields for differential expression.
+    '''
     setattr(form, 'prepatch', BooleanField('Use pre-batch/merged correction'))
     setattr(form, 'postpatch', BooleanField('Use post-batch/integrated correction'))
     setattr(form, 'clusteringResolution', create_clustering_resolution())
@@ -44,6 +50,9 @@ def add_fields_scrna_DE(form, genome):
 
 
 def get_scrnaseq_fields():
+    '''
+    Returns a dictionary of pipeline names to their respective add functions.
+    '''
     res = {}        
     res['Initial QC'] = add_fields_scrna_QC
     res['Differential Expression'] = add_fields_scrna_DE
