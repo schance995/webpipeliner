@@ -11,7 +11,7 @@ class NamedFileField(FileField):
     A file field that checks the name of its uploaded file against an expected title.
     Inspect the class functions for more details.
     '''
-    def __init__(self, *args, **kwargs):
+    def __init__(self, label='', validators=None, expect='', required=False, **kwargs):
         '''
         Initializes the NamedFileField by calling super() on the FileField
 
@@ -19,46 +19,38 @@ class NamedFileField(FileField):
             label (str): if a value is provided, it will be formatted by "label.format(expect)".
             validators (list of validators): optionally add extra validators.
             expect (str): the title of the file to expect. ".tab" extension is not required if "label" is not provided.
-            required (bool): whether this field is required or not. Just for convenience.
+            required (bool): whether this field is required or not.
+                If label is not provided then additional text indicating the requirement will be added here in the label.
         '''
-        label = kwargs.get('label')
-        expect = kwargs.get('expect')
-        required = kwargs.get('required')
         if label:
-            del kwargs['label']
-        if expect:
-            del kwargs['expect']
-        if required:
-            del kwargs['required']
-        super(FileField, self).__init__(*args, **kwargs)
-        
-        if label:
-            #self.label = Label(label)
             self.expect = expect
+
         else:
-            label = 'Upload ' + expect + '.tab'
+            labeltxt = 'Upload ' + expect + '.tab'
             self.expect = expect + '.tab'
+            if required:
+                labeltxt += ' (required)'
+            else:
+                labeltxt += ' (optional)'
 
-        if required:
-            self.validators += (DataRequired(), )
-            label += ' (required)'
-        else:
-            self.validators += (Optional(), )
-            label += ' (optional)'
+        self.required = required
+        super(FileField, self).__init__(labeltxt, validators, **kwargs)
 
-        self.label = Label(self.id, label)
-        #1/0
 
 
     def validate_filename(form, field):
         '''
         Validates the file inside the field if it matches the label defined in __init__
         '''
-        filename = secure_filename(field.data.filename)
-        1 / 0
-        if filename != self.expect:
-            message = 'Filename must match {} exactly'.format(self.expect)
-            raise ValidationError(message)
+        if field.data:        
+            filename = secure_filename(field.data.filename)
+            raise ValidationError('{}\t{}'.format(filename), self.expect)
+            if filename != self.expect:
+                message = 'Filename must match {} exactly'.format(self.expect)
+                raise ValidationError(message)
+        else:
+            if self.required:
+                raise ValidationError(self.expect + ' upload is required')
 
 
 class FloatListField(Field):
