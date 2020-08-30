@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileField
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField, FloatField, IntegerField, Field
 from wtforms.fields.html5 import EmailField
-from wtforms.validators import AnyOf, DataRequired, Length, NoneOf, Optional, Regexp
+from wtforms.validators import AnyOf, InputRequired, Length, NoneOf, Optional, Regexp
 from project.families import getFamilies, getPipelines, getGenomes
 from project.scrnaseq import get_scrnaseq_fields
 from project.rnaseq import get_rnaseq_fields
@@ -21,8 +21,8 @@ class LoginForm(FlaskForm):
         password: password field
         submit: sign in button
     '''
-    username = StringField('Username', validators=[DataRequired(), Length(max=500)])
-    password = PasswordField('Password', validators=[DataRequired(), Length(max=500)])
+    username = StringField('Username', validators=[InputRequired(), Length(max=500)])
+    password = PasswordField('Password', validators=[InputRequired(), Length(max=500)])
     submit = SubmitField('Sign In')
 
 
@@ -44,11 +44,11 @@ class BasicsForm(FlaskForm):
     '''
     dataPath = StringField('Enter path to data directory',
                            default='',
-                           validators=[DataRequired(), Length(max=500)])
+                           validators=[InputRequired(), Length(max=500)])
 
     workingPath = StringField('Enter path to working directory',
                               default='',
-                              validators=[DataRequired(), Length(max=500)])
+                              validators=[InputRequired(), Length(max=500)])
 
     # choices are (value, label) pairs. But only providing a value makes label = value
     family_choices = [(f, f) for f in getFamilies()]
@@ -57,7 +57,7 @@ class BasicsForm(FlaskForm):
     family = SelectField('Pipeline Family',
                          choices=family_choices,
                          default='Select a family',
-                         validators=[DataRequired(),
+                         validators=[InputRequired(),
                                      NoneOf(['Select a family'],
                                      message='Must select a family')])
 
@@ -100,7 +100,7 @@ class DetailsForm(FlaskForm):
 
     email = EmailField('Email',
                         description='Must use @nih.gov email address',
-                        validators=[DataRequired(),
+                        validators=[InputRequired(),
                                     Regexp('^\w*@nih\.gov$', message='Not an @nih.gov email address'),
                                     Length(max=500)])
 

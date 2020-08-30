@@ -1,7 +1,7 @@
 from flask_wtf.file import FileField
 from wtforms import Field
 from wtforms.fields import Label
-from wtforms.validators import DataRequired, Optional, ValidationError
+from wtforms.validators import InputRequired, Optional, ValidationError
 from wtforms.widgets import TextInput
 from re import search
 
@@ -33,7 +33,7 @@ class NamedFileField(FileField):
             else:
                 labeltxt += ' (optional)'
 
-        self.required = required
+        #self.required = required
         super(FileField, self).__init__(labeltxt, validators, **kwargs)
 
 
@@ -42,7 +42,7 @@ class NamedFileField(FileField):
         '''
         Validates the file inside the field if it matches the label defined in __init__
         '''
-        if field.data:        
+        if field.data:
             filename = secure_filename(field.data.filename)
             raise ValidationError('{}\t{}'.format(filename), self.expect)
             if filename != self.expect:

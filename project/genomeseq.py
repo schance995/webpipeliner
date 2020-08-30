@@ -1,6 +1,6 @@
 from project.custom import NamedFileField
 from wtforms import StringField
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import InputRequired, Length
 
 
 def add_target_capture_kit(form, genome):
@@ -9,7 +9,7 @@ def add_target_capture_kit(form, genome):
     '''
     tck = StringField('Target Capture Kit',
         description='By default, the path to the Agilent SureSelect V7 targets file is filled in here',
-        validators=[DataRequired(), Length(max=500)],
+        validators=[InputRequired(), Length(max=500)],
         default='/data/CCBR_Pipeliner/db/PipeDB/lib/Agilent_SSv7_allExons_hg19.bed')
     setattr(form, 'targetCaptureKit', tck)
 

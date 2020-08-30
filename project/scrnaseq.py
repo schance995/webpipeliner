@@ -1,12 +1,12 @@
 from project.custom import FloatListField, NamedFileField
 from wtforms import BooleanField, FloatField, SelectField
-from wtforms.validators import DataRequired
+from wtforms.validators import InputRequired
 
 
 def create_clustering_resolution():
     return FloatListField('Clustering Resolution(s)',
         default=['0.4','0.6','0.8','1.0','1.2'],
-        validators=[DataRequired()])
+        validators=[InputRequired()])
 
 
 # scRNAseq
@@ -37,8 +37,8 @@ def add_fields_scrna_DE(form, genome):
         choices = [(a, a) for a in ['MAST', 'DESeq2', 'Likelihood Ratio', 'Logistic regression', 'Negative Binomial', 'Wilcoxon', 'Student\'s T']],
         default='MAST')
     setattr(form, 'statisticalTest', stats)
-    setattr(form, 'minFraction', FloatField('Minimum fraction of cells expressing DE genes', default=0.1, validators=[DataRequired()]))
-    setattr(form, 'minFoldChange', FloatField('Minimum fold change to report DE genes', default=0.25, validators=[DataRequired()]))
+    setattr(form, 'minFraction', FloatField('Minimum fraction of cells expressing DE genes', default=0.1, validators=[InputRequired()]))
+    setattr(form, 'minFoldChange', FloatField('Minimum fold change to report DE genes', default=0.25, validators=[InputRequired()]))
     setattr(form, 'groups', NamedFileField(expect='groups'))
     setattr(form, 'contrasts', NamedFileField(expect='contrasts'))
 
