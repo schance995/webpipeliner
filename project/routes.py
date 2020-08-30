@@ -71,7 +71,8 @@ def check_form_field(form, field, datatocompare, err, requires=None):
         if form[field].data:
             if (not requires) or form[requires].data:
                 file = form[field].data
-                data, errors = read_file(file, datatocompare)        
+                data, errors = read_file(file, datatocompare)
+                
                 if errors:
                     err[0] = True
                     for e in errors:
@@ -92,7 +93,6 @@ def details():
     this page has the particular details based on the pipeline, as well as the data/working directory selection
     the user should fill out relevant details in the basics form first. Otherwise they will be redirected to fill out the forms.
     '''
-
 #    if not user.auth: # check for login
 #        return redirect(url_for('login'))
     if not user.basics: # basics form must be completed first
@@ -148,13 +148,17 @@ def details():
     # if form.validate on submit ...
     elif 'details' in session: # what does this do again? I think it preserves prior inputs
         form.process(data=session['details'])
-    
+
     # flash("Family = " + family + " and Pipeline = " + pipeline + " and Genome = " + genome, 'success')
     return render_template('details.html', title='Details', current_user=user, form=form, header='{}+{}+{}'.format(family, pipeline, genome))
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    '''
+    This route handles user login.
+    To integrate with Flask, add the decorate @login_required in front of the desired routes
+    '''
 #    if user.auth:
 #        return redirect(url_for('basics'))
 #    form = LoginForm()
@@ -170,6 +174,9 @@ def login():
 
 @app.route('/logout')
 def logout():
+    '''
+    This route handles user logout.
+    '''
     session.clear()
     flash('Logged out. Session cleared, form progress cleared')
     if user.auth:
@@ -181,4 +188,7 @@ def logout():
 @app.route('/')
 @app.route('/about')
 def about():
+    '''
+    The about page. Also the landing page.
+    '''
     return render_template('about.html', current_user=user)

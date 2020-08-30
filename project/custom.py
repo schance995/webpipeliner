@@ -4,6 +4,20 @@ from wtforms.fields import Label
 from wtforms.validators import InputRequired, Optional, ValidationError
 from wtforms.widgets import TextInput
 from re import search
+from werkzeug.utils import secure_filename
+
+
+def validate_filename(form, field):
+        '''
+        Validates the file inside the field if it matches the label defined in __init__
+        Does not raise error if field is empty - include Optional() or InputRequired() in the form if needed
+        '''
+        if field.data:
+            filename = secure_filename(field.data.filename)
+            #raise ValidationError('{}\t{}'.format(filename, field.expect))
+            if filename != field.expect:
+                message = 'Filename must match {} exactly'.format(field.expect)
+                raise ValidationError(message)
 
 
 class NamedFileField(FileField):
@@ -33,24 +47,20 @@ class NamedFileField(FileField):
             else:
                 labeltxt += ' (optional)'
 
+        if not validators:
+            validators = []
+
+        if required:
+            validators.insert(0, InputRequired())
+            #validators.append(validate_filename) # add datarequired or dataoptional at the beginning of the list
+        else:
+            validators.insert(0, Optional())#, validate_filename]
+
+        validators.append(validate_filename)
         #self.required = required
+        print(validators)
         super(FileField, self).__init__(labeltxt, validators, **kwargs)
 
-
-
-    def validate_filename(form, field):
-        '''
-        Validates the file inside the field if it matches the label defined in __init__
-        '''
-        if field.data:
-            filename = secure_filename(field.data.filename)
-            raise ValidationError('{}\t{}'.format(filename), self.expect)
-            if filename != self.expect:
-                message = 'Filename must match {} exactly'.format(self.expect)
-                raise ValidationError(message)
-        else:
-            if self.required:
-                raise ValidationError(self.expect + ' upload is required')
 
 
 class FloatListField(Field):
