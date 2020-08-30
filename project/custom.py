@@ -1,33 +1,63 @@
 from flask_wtf.file import FileField
 from wtforms import Field
+from wtforms.fields import Label
 from wtforms.validators import DataRequired, Optional, ValidationError
 from wtforms.widgets import TextInput
+from re import search
 
 
 class NamedFileField(FileField):
     '''
     A file field that checks the name of its uploaded file against an expected title.
+    Inspect the class functions for more details.
     '''
-    def __init__(self, label='', validators=[], expect='', required=False, **kwargs):
-        label = 'Upload ' + expect + '.tab'
+    def __init__(self, *args, **kwargs):
+        '''
+        Initializes the NamedFileField by calling super() on the FileField
+
+        Args:
+            label (str): if a value is provided, it will be formatted by "label.format(expect)".
+            validators (list of validators): optionally add extra validators.
+            expect (str): the title of the file to expect. ".tab" extension is not required if "label" is not provided.
+            required (bool): whether this field is required or not. Just for convenience.
+        '''
+        label = kwargs.get('label')
+        expect = kwargs.get('expect')
+        required = kwargs.get('required')
+        if label:
+            del kwargs['label']
+        if expect:
+            del kwargs['expect']
         if required:
-            validators.append(DataRequired())
+            del kwargs['required']
+        super(FileField, self).__init__(*args, **kwargs)
+        
+        if label:
+            #self.label = Label(label)
+            self.expect = expect
+        else:
+            label = 'Upload ' + expect + '.tab'
+            self.expect = expect + '.tab'
+
+        if required:
+            self.validators += (DataRequired(), )
             label += ' (required)'
         else:
-            validators.append(Optional())
+            self.validators += (Optional(), )
             label += ' (optional)'
-        super(FileField, self).__init__(label, validators, **kwargs)        
+
+        self.label = Label(self.id, label)
+        #1/0
 
 
     def validate_filename(form, field):
-        shouldbe_search = search(r' ([a-z]*\.tab)')
-        if shouldbe_search:
-            shouldbe = shouldbe_search.group(1)
-        else:
-            raise ValueError('No filename was provided during __init__')
+        '''
+        Validates the file inside the field if it matches the label defined in __init__
+        '''
         filename = secure_filename(field.data.filename)
-        if filename != shouldbe:
-            message = 'Filename must match {} exactly'.format(shouldbe)
+        1 / 0
+        if filename != self.expect:
+            message = 'Filename must match {} exactly'.format(self.expect)
             raise ValidationError(message)
 
 

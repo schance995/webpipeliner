@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, Request # necessary import
 from config import Config
 import logging
 from logging.handlers import RotatingFileHandler
@@ -11,6 +11,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 # to resolve circular import in routes.py
+from project import routes, errors # necessary import
 
 bootstrap = Bootstrap(app)
 csrf = CSRFProtect(app)

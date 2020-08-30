@@ -97,12 +97,12 @@ class DetailsForm(FlaskForm):
     projectId = StringField('Project ID',
                             description='Examples: CCBR-nnn,Labname or short project name',
                             validators=[Optional(), Length(max=500)])
-    
+
     email = EmailField('Email',
                         description='Must use @nih.gov email address',
                         validators=[DataRequired(),
                                     Regexp('^\w*@nih\.gov$', message='Not an @nih.gov email address'),
-
+                                    Length(max=500)])
 
     flowCellId = StringField('Flow Cell ID',
                              description='FlowCellID, Labname, date or short project name',
