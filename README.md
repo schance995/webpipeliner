@@ -2,9 +2,9 @@
 
 This project is a web frontend of the GUI version of [https://github.com/CCBR/Pipeliner](Pipeliner).
 
-Web app is in project folder.
+The web app is in the project folder.
 
-Weekly progress reports are in progress folder.
+Weekly progress reports are in the progress folder.
 
 To run the app:
 1. Clone the repo
@@ -17,3 +17,8 @@ To run the app:
 5. Open [http://localhost:5000](http://localhost:5000)
 6. Have fun!
 7. Ctrl-C in terminal to quit (and `deactivate` if you used a virtual env)
+
+![The about page](/screenshots/about.png)
+![The basics page](/screenshots/basics.png)
+![The details page](/screenshots/details.png)
+![The about page after submitting](/screenshots/submit.png)
